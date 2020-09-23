@@ -304,18 +304,16 @@ export function isIconUrl(icon: ?string | ?Object) {
 export function isLocalParticipantModerator(
         stateful: Object | Function,
         ignoreToken: ?boolean = false) {
+
     const state = toState(stateful);
+
     const localParticipant = getLocalParticipant(state);
 
-    if (!localParticipant) {
+    if (!localParticipant || !localParticipant.email) {
         return false;
     }
 
-    return (
-        localParticipant.role === PARTICIPANT_ROLE.MODERATOR
-        && (ignoreToken
-                || !state['features/base/config'].enableUserRolesBasedOnToken
-                || !state['features/base/jwt'].isGuest));
+    return localParticipant.email && localParticipant.email.endsWith('-true');
 }
 
 /**

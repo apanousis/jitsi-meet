@@ -205,15 +205,5 @@ export function openConnection({ id, password, retry, roomName }) {
         password = passwordOverride; // eslint-disable-line no-param-reassign
     }
 
-    return connect(id, password, roomName).catch(err => {
-        if (retry) {
-            const { jwt } = APP.store.getState()['features/base/jwt'];
-
-            if (err === JitsiConnectionErrors.PASSWORD_REQUIRED && !jwt) {
-                return AuthHandler.requestAuth(roomName, connect);
-            }
-        }
-
-        throw err;
-    });
+    return connect(id, password, roomName);
 }

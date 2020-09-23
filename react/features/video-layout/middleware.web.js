@@ -8,7 +8,8 @@ import {
     PARTICIPANT_LEFT,
     PARTICIPANT_UPDATED,
     PIN_PARTICIPANT,
-    getParticipantById
+    getParticipantById,
+    isLocalParticipantModerator, isParticipantModerator
 } from '../base/participants';
 import { MiddlewareRegistry } from '../base/redux';
 import { TRACK_ADDED, TRACK_REMOVED } from '../base/tracks';
@@ -42,9 +43,11 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case PARTICIPANT_JOINED:
-        if (!action.participant.local) {
-            VideoLayout.addRemoteParticipantContainer(
-                getParticipantById(store.getState(), action.participant.id));
+        const participant = getParticipantById(store.getState(), action.participant.id);
+
+        if (!action.participant.local && (isLocalParticipantModerator(store.getState())
+            || isParticipantModerator(participant))) {
+            VideoLayout.addRemoteParticipantContainer(participant);
         }
         break;
 

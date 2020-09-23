@@ -79,17 +79,6 @@ class Labels extends AbstractLabels<Props, State> {
                     this._renderE2EELabel()
                 }
                 {
-                    this._renderRecordingLabel(
-                        JitsiRecordingConstants.mode.FILE)
-                }
-                {
-                    this._renderRecordingLabel(
-                        JitsiRecordingConstants.mode.STREAM)
-                }
-                {
-                    this._renderLocalRecordingLabel()
-                }
-                {
                     this._renderTranscribingLabel()
                 }
                 {
@@ -106,8 +95,6 @@ class Labels extends AbstractLabels<Props, State> {
     _renderE2EELabel: () => React$Element<*>;
 
     _renderLocalRecordingLabel: () => React$Element<*>;
-
-    _renderRecordingLabel: string => React$Element<*>;
 
     _renderTranscribingLabel: () => React$Element<*>;
 

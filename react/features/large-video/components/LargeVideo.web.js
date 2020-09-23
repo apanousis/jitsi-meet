@@ -2,9 +2,7 @@
 
 import React, { Component } from 'react';
 
-import { Watermarks } from '../../base/react';
 import { connect } from '../../base/redux';
-import { InviteMore, Subject } from '../../conference';
 import { fetchCustomBrandingData } from '../../dynamic-branding';
 import { Captions } from '../../subtitles/';
 
@@ -70,14 +68,10 @@ class LargeVideo extends Component<Props> {
                 className = { className }
                 id = 'largeVideoContainer'
                 style = { style }>
-                <Subject />
-                <InviteMore />
                 <div id = 'sharedVideo'>
                     <div id = 'sharedVideoIFrame' />
                 </div>
                 <div id = 'etherpad' />
-
-                <Watermarks />
 
                 <div id = 'dominantSpeaker'>
                     <div className = 'dynamic-shadow' />

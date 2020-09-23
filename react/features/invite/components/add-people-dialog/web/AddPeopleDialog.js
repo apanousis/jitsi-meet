@@ -11,7 +11,6 @@ import { JitsiRecordingConstants } from '../../../../base/lib-jitsi-meet';
 import { getLocalParticipant } from '../../../../base/participants';
 import { connect } from '../../../../base/redux';
 import EmbedMeetingTrigger from '../../../../embed-meeting/components/EmbedMeetingTrigger';
-import { getActiveSession } from '../../../../recording';
 import { updateDialInNumbers } from '../../../actions';
 import { _getDefaultPhoneNumber, getInviteText, isAddPeopleEnabled, isDialOutEnabled } from '../../../functions';
 
@@ -181,8 +180,7 @@ function AddPeopleDialog({
  */
 function mapStateToProps(state) {
     const localParticipant = getLocalParticipant(state);
-    const currentLiveStreamingSession
-        = getActiveSession(state, JitsiRecordingConstants.mode.STREAM);
+
     const { iAmRecorder } = state['features/base/config'];
     const addPeopleEnabled = isAddPeopleEnabled(state);
     const dialOutEnabled = isDialOutEnabled(state);
@@ -193,9 +191,6 @@ function mapStateToProps(state) {
         _dialIn: state['features/invite'],
         _inviteContactsVisible: interfaceConfig.ENABLE_DIAL_OUT && !hideInviteContacts,
         _inviteUrl: getInviteURL(state),
-        _liveStreamViewURL:
-            currentLiveStreamingSession
-                && currentLiveStreamingSession.liveStreamViewURL,
         _localParticipantName: localParticipant?.name,
         _locationUrl: state['features/base/connection'].locationURL
     };

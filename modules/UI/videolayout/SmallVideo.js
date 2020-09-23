@@ -243,6 +243,10 @@ export default class SmallVideo {
      * or hidden
      */
     setScreenSharing(isScreenSharing) {
+        if (isScreenSharing === this.isScreenSharing) {
+            return;
+        }
+
         this.isScreenSharing = isScreenSharing;
         this.updateView();
         this.updateStatusBar();
@@ -466,17 +470,17 @@ export default class SmallVideo {
      */
     selectDisplayMode(input) {
         if (!input.tileViewActive && input.isScreenSharing) {
-            return input.isHovered ? DISPLAY_AVATAR_WITH_NAME : DISPLAY_AVATAR;
+            return DISPLAY_AVATAR_WITH_NAME;
         } else if (input.isCurrentlyOnLargeVideo && !input.tileViewActive) {
             // Display name is always and only displayed when user is on the stage
             return input.isVideoPlayable && !input.isAudioOnly ? DISPLAY_BLACKNESS_WITH_NAME : DISPLAY_AVATAR_WITH_NAME;
         } else if (input.isVideoPlayable && input.hasVideo && !input.isAudioOnly) {
             // check hovering and change state to video with name
-            return input.isHovered ? DISPLAY_VIDEO_WITH_NAME : DISPLAY_VIDEO;
+            return DISPLAY_VIDEO_WITH_NAME;
         }
 
         // check hovering and change state to avatar with name
-        return input.isHovered ? DISPLAY_AVATAR_WITH_NAME : DISPLAY_AVATAR;
+        return DISPLAY_AVATAR_WITH_NAME;
     }
 
     /**
@@ -537,8 +541,8 @@ export default class SmallVideo {
             this.$container.addClass('display-name-on-black');
             break;
         case DISPLAY_VIDEO:
-            displayModeString = 'video';
-            this.$container.addClass('display-video');
+            displayModeString = 'video-with-name';
+            this.$container.addClass('display-name-on-video');
             break;
         case DISPLAY_VIDEO_WITH_NAME:
             displayModeString = 'video-with-name';

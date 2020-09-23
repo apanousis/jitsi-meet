@@ -24,6 +24,7 @@ import logger from './logger';
  * @returns {void}
  */
 export function sendAnalytics(event: Object) {
+    return;
     try {
         analytics.sendEvent(event);
     } catch (e) {

@@ -237,32 +237,6 @@ UI.initEtherpad = name => {
 };
 
 /**
- * Returns the shared document manager object.
- * @return {EtherpadManager} the shared document manager object
- */
-UI.getSharedDocumentManager = () => etherpadManager;
-
-/**
- * Show user on UI.
- * @param {JitsiParticipant} user
- */
-UI.addUser = function(user) {
-    const id = user.getId();
-    const displayName = user.getDisplayName();
-    const status = user.getStatus();
-
-    if (status) {
-        // FIXME: move updateUserStatus in participantPresenceChanged action
-        UI.updateUserStatus(user, status);
-    }
-
-    // set initial display name
-    if (displayName) {
-        UI.changeDisplayName(id, displayName);
-    }
-};
-
-/**
  * Update videotype for specified user.
  * @param {string} id user id
  * @param {string} newVideoType new videotype
@@ -315,42 +289,6 @@ UI.toggleChat = () => APP.store.dispatch(toggleChat());
  */
 UI.inputDisplayNameHandler = function(newDisplayName) {
     eventEmitter.emit(UIEvents.NICKNAME_CHANGED, newDisplayName);
-};
-
-// FIXME check if someone user this
-UI.showLoginPopup = function(callback) {
-    logger.log('password is required');
-
-    const message
-        = `<input name="username" type="text"
-                placeholder="user@domain.net"
-                class="input-control" autofocus>
-         <input name="password" type="password"
-                data-i18n="[placeholder]dialog.userPassword"
-                class="input-control"
-                placeholder="user password">`
-
-    ;
-
-    // eslint-disable-next-line max-params
-    const submitFunction = (e, v, m, f) => {
-        if (v && f.username && f.password) {
-            callback(f.username, f.password);
-        }
-    };
-
-    messageHandler.openTwoButtonDialog({
-        titleKey: 'dialog.passwordRequired',
-        msgString: message,
-        leftButtonKey: 'dialog.Ok',
-        submitFunction,
-        focus: ':input:first'
-    });
-};
-
-UI.askForNickname = function() {
-    // eslint-disable-next-line no-alert
-    return window.prompt('Your nickname (optional)');
 };
 
 /**
@@ -558,41 +496,6 @@ UI.getLargeVideoID = function() {
  */
 UI.getLargeVideo = function() {
     return VideoLayout.getLargeVideo();
-};
-
-/**
- * Show shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
-*/
-UI.onSharedVideoStart = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStart(id, url, attributes);
-    }
-};
-
-/**
- * Update shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
- */
-UI.onSharedVideoUpdate = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoUpdate(id, url, attributes);
-    }
-};
-
-/**
- * Stop showing shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} attributes
- */
-UI.onSharedVideoStop = function(id, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStop(id, attributes);
-    }
 };
 
 /**

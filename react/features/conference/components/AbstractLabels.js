@@ -4,8 +4,6 @@ import React, { Component } from 'react';
 
 import { E2EELabel } from '../../e2ee';
 import { isFilmstripVisible } from '../../filmstrip';
-import { LocalRecordingLabel } from '../../local-recording';
-import { RecordingLabel } from '../../recording';
 import { TranscribingLabel } from '../../transcribing';
 import { shouldDisplayTileView } from '../../video-layout';
 import { VideoQualityLabel } from '../../video-quality';
@@ -45,32 +43,6 @@ export default class AbstractLabels<P: Props, S> extends Component<P, S> {
     _renderE2EELabel() {
         return (
             <E2EELabel />
-        );
-    }
-
-    /**
-     * Renders the {@code LocalRecordingLabel}.
-     *
-     * @protected
-     * @returns {React$Element}
-     */
-    _renderLocalRecordingLabel() {
-        return (
-            <LocalRecordingLabel />
-        );
-    }
-
-    /**
-     * Renders the {@code RecordingLabel} that is platform independent.
-     *
-     * @param {string} mode - The recording mode that this label is rendered
-     * for.
-     * @protected
-     * @returns {React$Element}
-     */
-    _renderRecordingLabel(mode: string) {
-        return (
-            <RecordingLabel mode = { mode } />
         );
     }
 

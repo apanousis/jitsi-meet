@@ -145,28 +145,9 @@ class DisplayName extends Component<Props, State> {
     render() {
         const {
             _nameToDisplay,
-            allowEditing,
             displayNameSuffix,
-            elementID,
-            t
+            elementID
         } = this.props;
-
-        if (allowEditing && this.state.isEditing) {
-            return (
-                <input
-                    autoFocus = { true }
-                    className = 'editdisplayname'
-                    id = 'editDisplayName'
-                    onBlur = { this._onSubmit }
-                    onChange = { this._onChange }
-                    onKeyDown = { this._onKeyDown }
-                    placeholder = { t('defaultNickname') }
-                    ref = { this._setNameInputRef }
-                    spellCheck = { 'false' }
-                    type = 'text'
-                    value = { this.state.editDisplayNameValue } />
-            );
-        }
 
         return (
             <span

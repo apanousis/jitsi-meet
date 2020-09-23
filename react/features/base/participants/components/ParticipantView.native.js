@@ -3,7 +3,6 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 
-import { YoutubeLargeVideo } from '../../../youtube-player/components';
 import { Avatar } from '../../avatar';
 import { translate } from '../../i18n';
 import { JitsiParticipantConnectionStatus } from '../../lib-jitsi-meet';
@@ -14,7 +13,6 @@ import {
 import { Container, TintedView } from '../../react';
 import { connect } from '../../redux';
 import type { StyleType } from '../../styles';
-import { TestHint } from '../../testing/components';
 import { getTrackByMediaTypeAndParticipant } from '../../tracks';
 import { shouldRenderParticipantVideo, getParticipantById } from '../functions';
 
@@ -192,7 +190,6 @@ class ParticipantView extends Component<Props> {
             _isFakeParticipant,
             _renderVideo: renderVideo,
             _videoTrack: videoTrack,
-            disableVideo,
             onPress,
             tintStyle
         } = this.props;
@@ -203,28 +200,14 @@ class ParticipantView extends Component<Props> {
         const useTint
             = connectionProblem || this.props.tintEnabled;
 
-        const testHintId
-            = this.props.testHintId
-                ? this.props.testHintId
-                : `org.jitsi.meet.Participant#${this.props.participantId}`;
-
-        const renderYoutubeLargeVideo = _isFakeParticipant && !disableVideo;
-
         return (
             <Container
-                onClick = { renderVideo || renderYoutubeLargeVideo ? undefined : onPress }
+                onClick = { renderVideo ? undefined : onPress }
                 style = {{
                     ...styles.participantView,
                     ...this.props.style
                 }}
                 touchFeedback = { false }>
-
-                <TestHint
-                    id = { testHintId }
-                    onPress = { renderYoutubeLargeVideo ? undefined : onPress }
-                    value = '' />
-
-                { renderYoutubeLargeVideo && <YoutubeLargeVideo youtubeId = { this.props.participantId } /> }
 
                 { !_isFakeParticipant && renderVideo
                     && <VideoTrack
@@ -234,7 +217,7 @@ class ParticipantView extends Component<Props> {
                         zOrder = { this.props.zOrder }
                         zoomEnabled = { this.props.zoomEnabled } /> }
 
-                { !renderYoutubeLargeVideo && !renderVideo
+                { !renderVideo
                     && <View style = { styles.avatarContainer }>
                         <Avatar
                             participantId = { this.props.participantId }

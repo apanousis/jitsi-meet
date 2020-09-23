@@ -9,7 +9,6 @@ import { AppRegistry } from 'react-native';
 
 import { App } from './features/app/components';
 import { _initLogging } from './features/base/logging/functions';
-import { IncomingCallApp } from './features/mobile/incoming-call';
 
 declare var __DEV__;
 
@@ -71,6 +70,3 @@ if (!__DEV__) {
 
 // Register the main/root Component of JitsiMeetView.
 AppRegistry.registerComponent('App', () => Root);
-
-// Register the main/root Component of IncomingCallView.
-AppRegistry.registerComponent('IncomingCallApp', () => IncomingCallApp);
