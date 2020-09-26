@@ -36,10 +36,6 @@ RCT_EXPORT_MODULE();
     NSDictionary<NSString *, id> *infoDictionary
         = [[NSBundle mainBundle] infoDictionary];
 
-    // calendarEnabled
-    BOOL calendarEnabled
-        = infoDictionary[@"NSCalendarsUsageDescription"] != nil;
-
     // name
     NSString *name = infoDictionary[@"CFBundleDisplayName"];
 
@@ -70,9 +66,8 @@ RCT_EXPORT_MODULE();
     }
 
     BOOL isGoogleServiceEnabled = [InfoPlistUtil containsRealServiceInfoPlistInBundle:[NSBundle mainBundle]];
-    
+
     return @{
-        @"calendarEnabled": [NSNumber numberWithBool:calendarEnabled],
         @"buildNumber": buildNumber,
         @"name": name,
         @"sdkBundlePath": sdkBundlePath,

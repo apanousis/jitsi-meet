@@ -499,7 +499,6 @@
 				C69EFA0C209A0F660027712B /* JMCallKitEmitter.swift in Sources */,
 				DEFE535621FB2E8300011A3A /* ReactUtils.m in Sources */,
 				C6A34261204EF76800E062DD /* DragGestureController.swift in Sources */,
-				A4A934E9212F3ADB001E9388 /* Dropbox.m in Sources */,
 				C69EFA0D209A0F660027712B /* JMCallKitProxy.swift in Sources */,
 				DE81A2D52316AC4D00AE1940 /* JitsiMeetLogger.m in Sources */,
 				C69EFA0E209A0F660027712B /* JMCallKitListener.swift in Sources */,

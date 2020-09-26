@@ -55,7 +55,6 @@ target 'JitsiMeet' do
   #
 
   pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
-  pod 'react-native-calendar-events', :path => '../node_modules/react-native-calendar-events'
   pod 'react-native-keep-awake', :path => '../node_modules/react-native-keep-awake'
   pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
   pod 'react-native-webview', :path => '../node_modules/react-native-webview'
@@ -73,7 +72,6 @@ target 'JitsiMeet' do
 
   pod 'Amplitude-iOS', '~> 4.0.4'
   pod 'CocoaLumberjack', '~>3.5.3'
-  pod 'ObjectiveDropboxOfficial', '~> 3.9.4'
 
   use_native_modules!
 end
