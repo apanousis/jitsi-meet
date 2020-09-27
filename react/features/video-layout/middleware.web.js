@@ -61,7 +61,7 @@ MiddlewareRegistry.register(store => next => action => {
         // explicit in order to minimize changes to other code.
         if (action.participant.email && action.participant.id) {
             if (action.participant.onlyEmail) {
-                if (participantCanBeSeen(store.getState())(action.participant)) {
+                if (participantCanBeSeen(store.getState(), action.participant)) {
 
                     // In case of reconnection remove old window
                     const limboParticipant = getParticipants(store.getState())

@@ -289,7 +289,7 @@ function _mapStateToProps(state) {
     return {
         _aspectRatio: responsiveUi.aspectRatio,
         _height: responsiveUi.clientHeight,
-        _participants: participants.filter(participantCanBeSeen(state)),
+        _participants: participants.filter(p => participantCanBeSeen(state, p) || p.local),
         _width: responsiveUi.clientWidth
     };
 }

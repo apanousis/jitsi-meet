@@ -393,5 +393,5 @@ async function _getFirstLoadableAvatarUrl(participant) {
     return undefined;
 }
 
-export const participantCanBeSeen = state => participant => !participant.local
+export const participantCanBeSeen = (state, participant) => !participant.local
     && (isLocalParticipantModerator(state) || isParticipantModerator(participant));
