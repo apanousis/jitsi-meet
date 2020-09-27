@@ -9,7 +9,7 @@ import {
     PARTICIPANT_UPDATED,
     PIN_PARTICIPANT,
     getParticipantById,
-    isLocalParticipantModerator, isParticipantModerator, getParticipants
+    isLocalParticipantModerator, isParticipantModerator, getParticipants, participantCanBeSeen
 } from '../base/participants';
 import { MiddlewareRegistry } from '../base/redux';
 import { TRACK_ADDED, TRACK_REMOVED } from '../base/tracks';
@@ -61,9 +61,7 @@ MiddlewareRegistry.register(store => next => action => {
         // explicit in order to minimize changes to other code.
         if (action.participant.email) {
             if (action.participant.onlyEmail) {
-                if (!action.participant.local
-                    && (isLocalParticipantModerator(store.getState())
-                        || isParticipantModerator(action.participant))) {
+                if (participantCanBeSeen(store.getState(), action.participant)) {
 
                     // In case of reconnection remove old window
                     const limboParticipant = getParticipants(store.getState())

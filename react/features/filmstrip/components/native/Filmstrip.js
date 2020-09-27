@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
 
+import { participantCanBeSeen } from '../../../base/participants';
 import { Container, Platform } from '../../../base/react';
 import { connect } from '../../../base/redux';
 import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
@@ -179,7 +180,7 @@ function _mapStateToProps(state) {
     return {
         _aspectRatio: state['features/base/responsive-ui'].aspectRatio,
         _enabled: enabled,
-        _participants: participants.filter(p => !p.local),
+        _participants: participants.filter(participantCanBeSeen(state)),
         _visible: isFilmstripVisible(state)
     };
 }

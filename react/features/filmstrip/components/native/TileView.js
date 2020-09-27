@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import type { Dispatch } from 'redux';
 
+import { participantCanBeSeen } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
 import { setTileViewDimensions } from '../../actions.native';
@@ -283,11 +284,12 @@ class TileView extends Component<Props> {
  */
 function _mapStateToProps(state) {
     const responsiveUi = state['features/base/responsive-ui'];
+    const participants = state['features/base/participants'];
 
     return {
         _aspectRatio: responsiveUi.aspectRatio,
         _height: responsiveUi.clientHeight,
-        _participants: state['features/base/participants'],
+        _participants: participants.filter(participantCanBeSeen(state)),
         _width: responsiveUi.clientWidth
     };
 }
