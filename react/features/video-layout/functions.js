@@ -75,13 +75,6 @@ export function getTileViewGridDimensions(state: Object, maxColumns: number = ge
 export function shouldDisplayTileView(state: Object = {}) {
     const participantCount = getParticipantCount(state);
 
-    // PLAYING WITH filmstrip
-    // const localParticipantIsModerator = isLocalParticipantModerator(state);
-    //
-    // if (!localParticipantIsModerator) {
-    //     return false;
-    // }
-
     const { tileViewEnabled } = state['features/video-layout'];
 
     if (tileViewEnabled !== undefined) {

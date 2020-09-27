@@ -9,7 +9,7 @@ import {
     PARTICIPANT_UPDATED,
     PIN_PARTICIPANT,
     getParticipantById,
-    isLocalParticipantModerator, isParticipantModerator
+    isLocalParticipantModerator, isParticipantModerator, getParticipants
 } from '../base/participants';
 import { MiddlewareRegistry } from '../base/redux';
 import { TRACK_ADDED, TRACK_REMOVED } from '../base/tracks';
@@ -59,6 +59,28 @@ MiddlewareRegistry.register(store => next => action => {
         // Look for actions that triggered a change to connectionStatus. This is
         // done instead of changing the connection status change action to be
         // explicit in order to minimize changes to other code.
+        if (action.participant.email) {
+            if (action.participant.onlyEmail) {
+                if (!action.participant.local
+                    && (isLocalParticipantModerator(store.getState())
+                        || isParticipantModerator(action.participant))) {
+
+                    // In case of reconnection remove old window
+                    const limboParticipant = getParticipants(store.getState())
+                        .find(p => p.email === action.participant.email
+                            && p.id !== action.participant.id);
+
+                    if (limboParticipant) {
+                        VideoLayout.removeParticipantContainer(limboParticipant.id);
+                    }
+
+                    VideoLayout.addRemoteParticipantContainer(action.participant);
+                } else {
+                    VideoLayout.removeParticipantContainer(action.participant.id);
+                }
+            }
+        }
+
         if (typeof action.participant.connectionStatus !== 'undefined') {
             VideoLayout.onParticipantConnectionStatusChanged(
                 action.participant.id,

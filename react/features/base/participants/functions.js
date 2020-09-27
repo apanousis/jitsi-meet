@@ -10,8 +10,7 @@ import { createDeferred } from '../util';
 
 import {
     JIGASI_PARTICIPANT_ICON,
-    MAX_DISPLAY_NAME_LENGTH,
-    PARTICIPANT_ROLE
+    MAX_DISPLAY_NAME_LENGTH
 } from './constants';
 import { preloadImage } from './preloadImage';
 
@@ -266,7 +265,7 @@ export function getYoutubeParticipant(stateful: Object | Function) {
  * @returns {boolean}
  */
 export function isParticipantModerator(participant: Object) {
-    return participant?.role === PARTICIPANT_ROLE.MODERATOR;
+    return participant.email && participant.email.endsWith('-true');
 }
 
 /**
@@ -313,7 +312,7 @@ export function isLocalParticipantModerator(
         return false;
     }
 
-    return localParticipant.email && localParticipant.email.endsWith('-true');
+    return isParticipantModerator(localParticipant);
 }
 
 /**

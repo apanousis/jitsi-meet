@@ -237,6 +237,26 @@ UI.initEtherpad = name => {
 };
 
 /**
+ * Show user on UI.
+ * @param {JitsiParticipant} user
+ */
+UI.addUser = function(user) {
+    const id = user.getId();
+    const displayName = user.getDisplayName();
+    const status = user.getStatus();
+
+    if (status) {
+        // FIXME: move updateUserStatus in participantPresenceChanged action
+        UI.updateUserStatus(user, status);
+    }
+
+    // set initial display name
+    if (displayName) {
+        UI.changeDisplayName(id, displayName);
+    }
+};
+
+/**
  * Update videotype for specified user.
  * @param {string} id user id
  * @param {string} newVideoType new videotype

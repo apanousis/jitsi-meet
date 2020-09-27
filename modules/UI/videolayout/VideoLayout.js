@@ -296,6 +296,12 @@ const VideoLayout = {
         }
 
         const id = participant.id;
+
+        // skip if exists
+        if (remoteVideos[id]) {
+            return;
+        }
+
         const jitsiParticipant = APP.conference.getParticipantById(id);
         const remoteVideo = new RemoteVideo(jitsiParticipant, VideoLayout);
 
