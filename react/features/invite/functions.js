@@ -307,43 +307,6 @@ export function getInviteTypeCounts(inviteItems: Array<Object> = []) {
 }
 
 /**
- * Sends a post request to an invite service.
- *
- * @param {string} inviteServiceUrl - The invite service that generates the
- * invitation.
- * @param {string} inviteUrl - The url to the conference.
- * @param {string} jwt - The jwt token to pass to the search service.
- * @param {Immutable.List} inviteItems - The list of the "user" or "room" type
- * items to invite.
- * @returns {Promise} - The promise created by the request.
- */
-export function invitePeopleAndChatRooms( // eslint-disable-line max-params
-        inviteServiceUrl: string,
-        inviteUrl: string,
-        jwt: string,
-        inviteItems: Array<Object>
-): Promise<void> {
-
-    if (!inviteItems || inviteItems.length === 0) {
-        return Promise.resolve();
-    }
-
-    return fetch(
-           `${inviteServiceUrl}?token=${jwt}`,
-           {
-               body: JSON.stringify({
-                   'invited': inviteItems,
-                   'url': inviteUrl
-               }),
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json'
-               }
-           }
-    );
-}
-
-/**
  * Determines if adding people is currently enabled.
  *
  * @param {boolean} state - Current state.

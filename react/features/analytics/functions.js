@@ -196,18 +196,6 @@ export function initAnalytics({ getState }: { getState: Function }, handlers: Ar
 
     // Set the handlers last, since this triggers emptying of the cache
     analytics.setAnalyticsHandlers(handlers);
-
-    if (!isMobileBrowser() && browser.isChrome()) {
-        const bannerCfg = state['features/base/config'].chromeExtensionBanner;
-
-        checkChromeExtensionsInstalled(bannerCfg).then(extensionsInstalled => {
-            if (extensionsInstalled?.length) {
-                analytics.addPermanentProperties({
-                    hasChromeExtension: extensionsInstalled.some(ext => ext)
-                });
-            }
-        });
-    }
 }
 
 /**

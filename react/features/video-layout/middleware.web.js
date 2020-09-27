@@ -59,7 +59,7 @@ MiddlewareRegistry.register(store => next => action => {
         // Look for actions that triggered a change to connectionStatus. This is
         // done instead of changing the connection status change action to be
         // explicit in order to minimize changes to other code.
-        if (action.participant.email) {
+        if (action.participant.email && action.participant.id) {
             if (action.participant.onlyEmail) {
                 if (participantCanBeSeen(store.getState(), action.participant)) {
 

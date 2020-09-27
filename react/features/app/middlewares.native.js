@@ -12,7 +12,5 @@ import '../mobile/permissions/middleware';
 import '../mobile/proximity/middleware';
 import '../mobile/wake-lock/middleware';
 import '../mobile/watchos/middleware';
-import '../share-room/middleware';
-import '../youtube-player/middleware';
 
 import './middlewares.any';

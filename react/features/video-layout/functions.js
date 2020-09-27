@@ -1,7 +1,6 @@
 // @flow
 
 import { getPinnedParticipant, getParticipantCount } from '../base/participants';
-import { isYoutubeVideoPlaying } from '../youtube-player/functions';
 
 import { LAYOUTS } from './constants';
 
@@ -100,9 +99,6 @@ export function shouldDisplayTileView(state: Object = {}) {
 
         // It's a 1-on-1 meeting
         || participantCount < 3
-
-        // There is a shared YouTube video in the meeting
-        || isYoutubeVideoPlaying(state)
     );
 
     return !shouldDisplayNormalMode;

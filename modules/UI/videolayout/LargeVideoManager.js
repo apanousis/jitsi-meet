@@ -12,7 +12,6 @@ import {
     JitsiParticipantConnectionStatus
 } from '../../../react/features/base/lib-jitsi-meet';
 import { VIDEO_TYPE } from '../../../react/features/base/media';
-import { CHAT_SIZE } from '../../../react/features/chat';
 import {
     updateKnownLargeVideoResolution
 } from '../../../react/features/large-video';
@@ -324,18 +323,7 @@ export default class LargeVideoManager {
      * Update container size.
      */
     updateContainerSize() {
-        let widthToUse = UIUtil.getAvailableVideoWidth();
-        const { isOpen } = APP.store.getState()['features/chat'];
-
-        if (isOpen) {
-            /**
-             * If chat state is open, we re-compute the container width
-             * by subtracting the default width of the chat.
-             */
-            widthToUse -= CHAT_SIZE;
-        }
-
-        this.width = widthToUse;
+        this.width = UIUtil.getAvailableVideoWidth();
         this.height = window.innerHeight;
     }
 

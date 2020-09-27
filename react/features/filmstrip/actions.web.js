@@ -1,7 +1,5 @@
 // @flow
 
-import { CHAT_SIZE } from '../chat/constants';
-
 import { SET_HORIZONTAL_VIEW_DIMENSIONS, SET_TILE_VIEW_DIMENSIONS } from './actionTypes';
 import { calculateThumbnailSizeForHorizontalView, calculateThumbnailSizeForTileView } from './functions';
 
@@ -15,20 +13,15 @@ const TILE_VIEW_SIDE_MARGINS = 10 * 2;
  *
  * @param {Object} dimensions - Whether the filmstrip is visible.
  * @param {Object} windowSize - The size of the window.
- * @param {boolean} isChatOpen - Whether the chat panel is displayed, in
  * order to properly compute the tile view size.
  * @returns {{
  *     type: SET_TILE_VIEW_DIMENSIONS,
  *     dimensions: Object
  * }}
  */
-export function setTileViewDimensions(dimensions: Object, windowSize: Object, isChatOpen: boolean) {
+export function setTileViewDimensions(dimensions: Object, windowSize: Object) {
     const { clientWidth, clientHeight } = windowSize;
-    let widthToUse = clientWidth;
-
-    if (isChatOpen) {
-        widthToUse -= CHAT_SIZE;
-    }
+    const widthToUse = clientWidth;
 
     const thumbnailSize = calculateThumbnailSizeForTileView({
         ...dimensions,

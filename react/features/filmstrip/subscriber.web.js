@@ -19,7 +19,6 @@ StateListenerRegistry.register(
             const gridDimensions = getTileViewGridDimensions(state);
             const oldGridDimensions = state['features/filmstrip'].tileViewDimensions.gridDimensions;
             const { clientHeight, clientWidth } = state['features/base/responsive-ui'];
-            const { isOpen } = state['features/chat'];
 
             if (!equals(gridDimensions, oldGridDimensions)) {
                 store.dispatch(
@@ -28,8 +27,7 @@ StateListenerRegistry.register(
                         {
                             clientHeight,
                             clientWidth
-                        },
-                        isOpen
+                        }
                     )
                 );
             }
@@ -47,7 +45,6 @@ StateListenerRegistry.register(
         switch (layout) {
         case LAYOUTS.TILE_VIEW: {
             const { clientHeight, clientWidth } = state['features/base/responsive-ui'];
-            const { isOpen } = state['features/chat'];
 
             store.dispatch(
                 setTileViewDimensions(
@@ -55,8 +52,7 @@ StateListenerRegistry.register(
                     {
                         clientHeight,
                         clientWidth
-                    },
-                    isOpen
+                    }
                 )
             );
             break;
@@ -89,36 +85,3 @@ StateListenerRegistry.register(
         }
     }
 );
-
-/**
- * Listens for changes in the chat state to calculate the dimensions of the tile view grid and the tiles.
- */
-StateListenerRegistry.register(
-    /* selector */ state => state['features/chat'].isOpen,
-    /* listener */ (isChatOpen, store) => {
-        const state = store.getState();
-
-        if (isChatOpen) {
-            // $FlowFixMe
-            document.body.classList.add('shift-right');
-        } else {
-            // $FlowFixMe
-            document.body.classList.remove('shift-right');
-        }
-
-        if (shouldDisplayTileView(state)) {
-            const gridDimensions = getTileViewGridDimensions(state);
-            const { clientHeight, clientWidth } = state['features/base/responsive-ui'];
-
-            store.dispatch(
-                setTileViewDimensions(
-                    gridDimensions,
-                    {
-                        clientHeight,
-                        clientWidth
-                    },
-                    isChatOpen
-                )
-            );
-        }
-    });

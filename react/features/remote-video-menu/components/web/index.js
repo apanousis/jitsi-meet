@@ -14,7 +14,6 @@ export { default as MuteEveryoneDialog } from './MuteEveryoneDialog';
 export {
     default as MuteRemoteParticipantDialog
 } from './MuteRemoteParticipantDialog';
-export { default as PrivateMessageMenuButton } from './PrivateMessageMenuButton';
 export {
     REMOTE_CONTROL_MENU_STATES,
     default as RemoteControlButton

@@ -14,7 +14,6 @@ import {
 } from '../../../react/features/base/participants';
 import { dockToolbox, showToolbox } from '../../../react/features/toolbox/actions.web';
 import { getToolboxHeight } from '../../../react/features/toolbox/functions.web';
-import { YOUTUBE_PARTICIPANT_NAME } from '../../../react/features/youtube-player/constants';
 import UIEvents from '../../../service/UI/UIEvents';
 import UIUtil from '../util/UIUtil';
 import Filmstrip from '../videolayout/Filmstrip';
@@ -294,18 +293,6 @@ export default class SharedVideoManager {
 
             VideoLayout.addLargeVideoContainer(
                 SHARED_VIDEO_CONTAINER_TYPE, self.sharedVideo);
-
-            APP.store.dispatch(participantJoined({
-
-                // FIXME The cat is out of the bag already or rather _room is
-                // not private because it is used in multiple other places
-                // already such as AbstractPageReloadOverlay.
-                conference: APP.conference._room,
-                id: self.url,
-                isFakeParticipant: true,
-                name: YOUTUBE_PARTICIPANT_NAME
-            }));
-
             APP.store.dispatch(pinParticipant(self.url));
 
             // If we are sending the command and we are starting the player

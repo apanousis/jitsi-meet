@@ -140,10 +140,6 @@ function initCommands() {
             sendAnalytics(createApiEvent('film.strip.toggled'));
             APP.UI.toggleFilmstrip();
         },
-        'toggle-chat': () => {
-            sendAnalytics(createApiEvent('chat.toggled'));
-            APP.UI.toggleChat();
-        },
 
         /**
          * Callback to invoke when the "toggle-share-screen" command is received.
@@ -397,21 +393,6 @@ class API {
     }
 
     /**
-     * Notify external application (if API is enabled) that message was sent.
-     *
-     * @param {string} message - Message body.
-     * @param {boolean} privateMessage - True if the message was a private message.
-     * @returns {void}
-     */
-    notifySendingChatMessage(message: string, privateMessage: boolean) {
-        this._sendEvent({
-            name: 'outgoing-message',
-            message,
-            privateMessage
-        });
-    }
-
-    /**
      * Notify external application that the video quality setting has changed.
      *
      * @param {number} videoQuality - The video quality. The number represents the maximum height of the video streams.
@@ -421,30 +402,6 @@ class API {
         this._sendEvent({
             name: 'video-quality-changed',
             videoQuality
-        });
-    }
-
-    /**
-     * Notify external application (if API is enabled) that message was
-     * received.
-     *
-     * @param {Object} options - Object with the message properties.
-     * @returns {void}
-     */
-    notifyReceivedChatMessage(
-            { body, id, nick, ts }: {
-                body: *, id: string, nick: string, ts: *
-            } = {}) {
-        if (APP.conference.isLocalId(id)) {
-            return;
-        }
-
-        this._sendEvent({
-            name: 'incoming-message',
-            from: id,
-            message: body,
-            nick,
-            stamp: ts
         });
     }
 

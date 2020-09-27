@@ -14,15 +14,6 @@ export default {
         icon: 'rgb(28, 32, 37)',
         text: 'rgb(28, 32, 37)'
     },
-    'Chat': {
-        displayName: 'rgb(94, 109, 121)',
-        localMsgBackground: 'rgb(215, 230, 249)',
-        privateMsgBackground: 'rgb(250, 219, 219)',
-        privateMsgNotice: 'rgb(186, 39, 58)',
-        remoteMsgBackground: 'rgb(241, 242, 246)',
-        replyBorder: 'rgb(219, 197, 200)',
-        replyIcon: 'rgb(94, 109, 121)'
-    },
     'Conference': {
         inviteButtonBackground: 'rgb(0, 119, 225)',
         onVideoText: 'white'

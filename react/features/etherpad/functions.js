@@ -4,7 +4,6 @@ import { toState } from '../base/redux';
 
 const ETHERPAD_OPTIONS = {
     showControls: 'true',
-    showChat: 'false',
     showLineNumbers: 'true',
     useMonospaceFont: 'false'
 };

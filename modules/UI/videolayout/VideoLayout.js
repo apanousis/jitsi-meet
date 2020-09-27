@@ -303,6 +303,11 @@ const VideoLayout = {
         }
 
         const jitsiParticipant = APP.conference.getParticipantById(id);
+
+        if (!jitsiParticipant) {
+            return;
+        }
+
         const remoteVideo = new RemoteVideo(jitsiParticipant, VideoLayout);
 
         this._setRemoteControlProperties(jitsiParticipant, remoteVideo);
