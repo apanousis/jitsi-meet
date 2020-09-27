@@ -8,10 +8,7 @@ import { toState } from '../redux';
 import { getTrackByMediaTypeAndParticipant } from '../tracks';
 import { createDeferred } from '../util';
 
-import {
-    JIGASI_PARTICIPANT_ICON,
-    MAX_DISPLAY_NAME_LENGTH
-} from './constants';
+import { JIGASI_PARTICIPANT_ICON, MAX_DISPLAY_NAME_LENGTH } from './constants';
 import { preloadImage } from './preloadImage';
 
 declare var config: Object;
@@ -34,6 +31,7 @@ const AVATAR_CHECKER_FUNCTIONS = [
         return participant && participant.email ? getGravatarURL(participant.email) : null;
     }
 ];
+
 /* eslint-enable arrow-body-style */
 
 /**
@@ -395,6 +393,5 @@ async function _getFirstLoadableAvatarUrl(participant) {
     return undefined;
 }
 
-
-export const participantCanBeSeen = state => participant => !participant.local && (isLocalParticipantModerator(state)
-    || isParticipantModerator(participant));
+export const participantCanBeSeen = state => participant => !participant.local
+    && (isLocalParticipantModerator(state) || isParticipantModerator(participant));
