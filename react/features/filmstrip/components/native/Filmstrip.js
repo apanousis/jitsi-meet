@@ -180,7 +180,7 @@ function _mapStateToProps(state) {
     return {
         _aspectRatio: state['features/base/responsive-ui'].aspectRatio,
         _enabled: enabled,
-        _participants: participants.filter(p => participantCanBeSeen(state, p) || p.local),
+        _participants: participants.filter(p => participantCanBeSeen(state, p)),
         _visible: isFilmstripVisible(state)
     };
 }
