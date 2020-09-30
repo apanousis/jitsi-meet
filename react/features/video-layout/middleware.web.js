@@ -49,6 +49,7 @@ MiddlewareRegistry.register(store => next => action => {
             || isParticipantModerator(participant))) {
             VideoLayout.addRemoteParticipantContainer(participant);
         }
+
         break;
 
     case PARTICIPANT_LEFT:
@@ -56,9 +57,7 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case PARTICIPANT_UPDATED: {
-        // Look for actions that triggered a change to connectionStatus. This is
-        // done instead of changing the connection status change action to be
-        // explicit in order to minimize changes to other code.
+
         if (action.participant.email && action.participant.id) {
             if (action.participant.onlyEmail) {
                 if (participantCanBeSeen(store.getState(), action.participant)) {

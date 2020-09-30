@@ -28,8 +28,7 @@ import {
     localParticipantJoined,
     localParticipantLeft,
     participantLeft,
-    participantUpdated,
-    setLoadableAvatarUrl
+    participantUpdated
 } from './actions';
 import {
     LOCAL_PARTICIPANT_DEFAULT_ID,
@@ -37,9 +36,7 @@ import {
     PARTICIPANT_LEFT_SOUND_ID
 } from './constants';
 import {
-    getFirstLoadableAvatarUrl,
     getLocalParticipant,
-    getParticipantById,
     getParticipantCount,
     getParticipantDisplayName
 } from './functions';
@@ -50,7 +47,7 @@ declare var APP: Object;
 /**
  * Middleware that captures CONFERENCE_JOINED and CONFERENCE_LEFT actions and
  * updates respectively ID of local participant.
- *
+ *§
  * @param {Store} store - The redux store.
  * @returns {Function}
  */
@@ -360,7 +357,7 @@ function _maybePlaySounds({ getState, dispatch }, action) {
  * @returns {Object} The value returned by {@code next(action)}.
  */
 function _participantJoinedOrUpdated({ dispatch, getState }, next, action) {
-    const { participant: { avatarURL, e2eeEnabled, email, id, local, name, raisedHand } } = action;
+    const { participant: { e2eeEnabled, local, raisedHand } } = action;
 
     // Send an external update of the local participant's raised hand state
     // if a new raised hand state is defined in the action.
@@ -385,31 +382,7 @@ function _participantJoinedOrUpdated({ dispatch, getState }, next, action) {
         }
     }
 
-    // Allow the redux update to go through and compare the old avatar
-    // to the new avatar and emit out change events if necessary.
-    const result = next(action);
-
-    const { disableThirdPartyRequests } = getState()['features/base/config'];
-
-    if (!disableThirdPartyRequests && (avatarURL || email || id || name)) {
-        const participantId = !id && local ? getLocalParticipant(getState()).id : id;
-        const updatedParticipant = getParticipantById(getState(), participantId);
-
-        getFirstLoadableAvatarUrl(updatedParticipant)
-            .then(url => {
-                dispatch(setLoadableAvatarUrl(participantId, url));
-            });
-    }
-
-    // Notify external listeners of potential avatarURL changes.
-    if (typeof APP === 'object') {
-        const currentKnownId = local ? APP.conference.getMyUserId() : id;
-
-        // Force update of local video getting a new id.
-        APP.UI.refreshAvatarDisplay(currentKnownId);
-    }
-
-    return result;
+    return next(action);
 }
 
 /**

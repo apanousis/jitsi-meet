@@ -1,6 +1,6 @@
 // @flow
 
-import { getPinnedParticipant, getParticipantCount } from '../base/participants';
+import { getPinnedParticipant, getParticipantCount, participantCanBeSeen } from '../base/participants';
 
 import { LAYOUTS } from './constants';
 
@@ -47,10 +47,11 @@ export function getMaxColumnCount() {
  * rows, and visible rows (the rest should overflow) for the tile view layout.
  */
 export function getTileViewGridDimensions(state: Object, maxColumns: number = getMaxColumnCount()) {
-    // When in tile view mode, we must discount ourselves (the local participant) because our
-    // tile is not visible.
-    const { iAmRecorder } = state['features/base/config'];
-    const numberOfParticipants = state['features/base/participants'].length - (iAmRecorder ? 1 : 0);
+
+    const numberOfParticipants = state['features/base/participants']
+        .filter(p => participantCanBeSeen(state, p)).length + 1;
+
+    console.log('=========', numberOfParticipants, state['features/base/participants']);
 
     const columnsToMaintainASquare = Math.ceil(Math.sqrt(numberOfParticipants));
     const columns = Math.min(columnsToMaintainASquare, maxColumns);

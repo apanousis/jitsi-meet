@@ -2,7 +2,7 @@
 
 import { CONFERENCE_FAILED, CONFERENCE_JOINED } from '../base/conference';
 import { JitsiConferenceErrors, JitsiConferenceEvents } from '../base/lib-jitsi-meet';
-import { getFirstLoadableAvatarUrl, getParticipantDisplayName } from '../base/participants';
+import { getParticipantDisplayName } from '../base/participants';
 import { MiddlewareRegistry, StateListenerRegistry } from '../base/redux';
 import { NOTIFICATION_TYPE, showNotification } from '../notifications';
 import { isPrejoinPageEnabled } from '../prejoin/functions';
@@ -24,14 +24,6 @@ MiddlewareRegistry.register(store => next => action => {
         return _conferenceFailed(store, next, action);
     case CONFERENCE_JOINED:
         return _conferenceJoined(store, next, action);
-    case KNOCKING_PARTICIPANT_ARRIVED_OR_UPDATED: {
-        // We need the full update result to be in the store already
-        const result = next(action);
-
-        _findLoadableAvatarForKnockingParticipant(store, action.participant);
-
-        return result;
-    }
     }
 
     return next(action);
@@ -134,29 +126,6 @@ function _conferenceJoined({ dispatch }, next, action) {
     dispatch(hideLobbyScreen());
 
     return next(action);
-}
-
-/**
- * Finds the loadable avatar URL and updates the participant accordingly.
- *
- * @param {Object} store - The Redux store.
- * @param {Object} participant - The knocking participant.
- * @returns {void}
- */
-function _findLoadableAvatarForKnockingParticipant({ dispatch, getState }, { id }) {
-    const updatedParticipant = getState()['features/lobby'].knockingParticipants.find(p => p.id === id);
-    const { disableThirdPartyRequests } = getState()['features/base/config'];
-
-    if (!disableThirdPartyRequests && updatedParticipant && !updatedParticipant.loadableAvatarUrl) {
-        getFirstLoadableAvatarUrl(updatedParticipant).then(loadableAvatarUrl => {
-            if (loadableAvatarUrl) {
-                dispatch(participantIsKnockingOrUpdated({
-                    loadableAvatarUrl,
-                    id
-                }));
-            }
-        });
-    }
 }
 
 /**

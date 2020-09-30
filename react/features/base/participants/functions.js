@@ -1,68 +1,15 @@
 // @flow
 
-import { getGravatarURL } from '@jitsi/js-utils/avatar';
-
 import { JitsiParticipantConnectionStatus } from '../lib-jitsi-meet';
 import { MEDIA_TYPE, shouldRenderVideoTrack } from '../media';
 import { toState } from '../redux';
 import { getTrackByMediaTypeAndParticipant } from '../tracks';
-import { createDeferred } from '../util';
 
-import { JIGASI_PARTICIPANT_ICON, MAX_DISPLAY_NAME_LENGTH } from './constants';
-import { preloadImage } from './preloadImage';
+import { MAX_DISPLAY_NAME_LENGTH } from './constants';
 
 declare var config: Object;
 declare var interfaceConfig: Object;
 
-/**
- * Temp structures for avatar urls to be checked/preloaded.
- */
-const AVATAR_QUEUE = [];
-const AVATAR_CHECKED_URLS = new Map();
-/* eslint-disable arrow-body-style */
-const AVATAR_CHECKER_FUNCTIONS = [
-    participant => {
-        return participant && participant.isJigasi ? JIGASI_PARTICIPANT_ICON : null;
-    },
-    participant => {
-        return participant && participant.avatarURL ? participant.avatarURL : null;
-    },
-    participant => {
-        return participant && participant.email ? getGravatarURL(participant.email) : null;
-    }
-];
-
-/* eslint-enable arrow-body-style */
-
-/**
- * Resolves the first loadable avatar URL for a participant.
- *
- * @param {Object} participant - The participant to resolve avatars for.
- * @returns {Promise}
- */
-export function getFirstLoadableAvatarUrl(participant: Object) {
-    const deferred = createDeferred();
-    const fullPromise = deferred.promise
-        .then(() => _getFirstLoadableAvatarUrl(participant))
-        .then(src => {
-
-            if (AVATAR_QUEUE.length) {
-                const next = AVATAR_QUEUE.shift();
-
-                next.resolve();
-            }
-
-            return src;
-        });
-
-    if (AVATAR_QUEUE.length) {
-        AVATAR_QUEUE.push(deferred);
-    } else {
-        deferred.resolve();
-    }
-
-    return fullPromise;
-}
 
 /**
  * Returns local participant from Redux state.
@@ -359,38 +306,6 @@ export function shouldRenderParticipantVideo(stateful: Object | Function, id: st
         = participant.id === largeVideoParticipantId && screenShares.includes(participant.id);
 
     return participantIsInLargeVideoWithScreen;
-}
-
-/**
- * Resolves the first loadable avatar URL for a participant.
- *
- * @param {Object} participant - The participant to resolve avatars for.
- * @returns {?string}
- */
-async function _getFirstLoadableAvatarUrl(participant) {
-    for (let i = 0; i < AVATAR_CHECKER_FUNCTIONS.length; i++) {
-        const url = AVATAR_CHECKER_FUNCTIONS[i](participant);
-
-        if (url) {
-            if (AVATAR_CHECKED_URLS.has(url)) {
-                if (AVATAR_CHECKED_URLS.get(url)) {
-                    return url;
-                }
-            } else {
-                try {
-                    const finalUrl = await preloadImage(url);
-
-                    AVATAR_CHECKED_URLS.set(finalUrl, true);
-
-                    return finalUrl;
-                } catch (e) {
-                    AVATAR_CHECKED_URLS.set(url, false);
-                }
-            }
-        }
-    }
-
-    return undefined;
 }
 
 export const participantCanBeSeen = (state, participant) => !participant.local

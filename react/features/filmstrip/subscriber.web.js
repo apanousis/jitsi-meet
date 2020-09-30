@@ -11,8 +11,14 @@ import { setHorizontalViewDimensions, setTileViewDimensions } from './actions.we
  * Listens for changes in the number of participants to calculate the dimensions of the tile view grid and the tiles.
  */
 StateListenerRegistry.register(
-    /* selector */ state => state['features/base/participants'].length,
-    /* listener */ (numberOfParticipants, store) => {
+    /* selector */ state => state['features/base/participants'],
+    /* listener */ (participants, store) => {
+
+        // all emails must have been updated prior to calculating the size
+        if (participants.filter(p => !p.email).length > 0) {
+            return;
+        }
+
         const state = store.getState();
 
         if (shouldDisplayTileView(state)) {
