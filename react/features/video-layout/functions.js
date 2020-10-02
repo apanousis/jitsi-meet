@@ -51,7 +51,7 @@ export function getTileViewGridDimensions(state: Object, maxColumns: number = ge
     const numberOfParticipants = state['features/base/participants']
         .filter(p => participantCanBeSeen(state, p)).length + 1;
 
-    console.log('=========', numberOfParticipants, state['features/base/participants']);
+    // console.log('=========', numberOfParticipants, state['features/base/participants']);
 
     const columnsToMaintainASquare = Math.ceil(Math.sqrt(numberOfParticipants));
     const columns = Math.min(columnsToMaintainASquare, maxColumns);
