@@ -103,24 +103,6 @@ export function updateKnownLargeVideoResolution(resolution: number) {
 }
 
 /**
- * Returns the most recent existing remote video track.
- *
- * @param {Track[]} tracks - All current tracks.
- * @private
- * @returns {(Track|undefined)}
- */
-function _electLastVisibleRemoteVideo(tracks) {
-    // First we try to get most recent remote video track.
-    for (let i = tracks.length - 1; i >= 0; --i) {
-        const track = tracks[i];
-
-        if (!track.local && track.mediaType === MEDIA_TYPE.VIDEO) {
-            return track;
-        }
-    }
-}
-
-/**
  * Returns the identifier of the participant who is to be on the stage and
  * should be displayed in {@code LargeVideo}.
  *

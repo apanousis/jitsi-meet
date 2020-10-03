@@ -6,7 +6,6 @@ import {
     conferenceLeft,
     getCurrentConference
 } from '../base/conference';
-import { hideDialog, isDialogOpen } from '../base/dialog';
 import { setActiveModalId } from '../base/modal';
 import { pinParticipant } from '../base/participants';
 import { MiddlewareRegistry, StateListenerRegistry } from '../base/redux';
@@ -56,7 +55,7 @@ MiddlewareRegistry.register(store => next => action => {
  */
 StateListenerRegistry.register(
     state => getCurrentConference(state),
-    (conference, { dispatch, getState }, prevConference) => {
+    (conference, { dispatch }, prevConference) => {
         if (conference !== prevConference) {
             // Unpin participant, in order to avoid the local participant
             // remaining pinned, since it's not destroyed across runs.

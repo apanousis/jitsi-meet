@@ -43,6 +43,7 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case PARTICIPANT_JOINED:
+        // eslint-disable-next-line no-case-declarations
         const participant = getParticipantById(store.getState(), action.participant.id);
 
         if (!action.participant.local && (isLocalParticipantModerator(store.getState())

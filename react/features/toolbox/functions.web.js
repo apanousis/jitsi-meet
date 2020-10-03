@@ -1,7 +1,6 @@
 // @flow
 
 import { hasAvailableDevices } from '../base/devices';
-import { isMobileBrowser } from '../base/environment/utils';
 
 declare var interfaceConfig: Object;
 

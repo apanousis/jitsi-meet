@@ -4,15 +4,10 @@ import React from 'react';
 
 import { APP_WILL_MOUNT, APP_WILL_UNMOUNT } from '../base/app';
 import { CONFERENCE_JOINED } from '../base/conference';
-import {
-    formatDeviceLabel,
-    setAudioInputDevice
-} from '../base/devices';
-import JitsiMeetJS, { JitsiConferenceEvents } from '../base/lib-jitsi-meet';
+import { JitsiConferenceEvents } from '../base/lib-jitsi-meet';
 import { MiddlewareRegistry } from '../base/redux';
-import { updateSettings } from '../base/settings';
 import { playSound, registerSound, unregisterSound } from '../base/sounds';
-import { hideNotification, showNotification } from '../notifications';
+import { hideNotification } from '../notifications';
 
 import { setNoAudioSignalNotificationUid } from './actions';
 import { NO_AUDIO_SIGNAL_SOUND_ID } from './constants';
@@ -70,41 +65,12 @@ async function _handleNoAudioSignalNotification({ dispatch, getState }, action) 
             return;
         }
 
-        const activeDevice = await JitsiMeetJS.getActiveAudioDevice();
-
         // In case there is a previous notification displayed just hide it.
         const { noAudioSignalNotificationUid } = getState()['features/no-audio-signal'];
 
         if (noAudioSignalNotificationUid) {
             dispatch(hideNotification(noAudioSignalNotificationUid));
             dispatch(setNoAudioSignalNotificationUid());
-        }
-
-
-        let descriptionKey = 'toolbar.noAudioSignalDesc';
-        let customActionNameKey;
-        let customActionHandler;
-
-        // In case the detector picked up a device show a notification with a device suggestion
-        if (activeDevice.deviceLabel !== '') {
-            descriptionKey = 'toolbar.noAudioSignalDescSuggestion';
-
-            // Preferably the label should be passed as an argument paired with a i18next string, however
-            // at the point of the implementation the showNotification function only supports doing that for
-            // the description.
-            // TODO Add support for arguments to showNotification title and customAction strings.
-            customActionNameKey = `Switch to ${formatDeviceLabel(activeDevice.deviceLabel)}`;
-            customActionHandler = () => {
-                // Select device callback
-                dispatch(
-                        updateSettings({
-                            userSelectedMicDeviceId: activeDevice.deviceId,
-                            userSelectedMicDeviceLabel: activeDevice.deviceLabel
-                        })
-                );
-
-                dispatch(setAudioInputDevice(activeDevice.deviceId));
-            };
         }
 
         dispatch(playSound(NO_AUDIO_SIGNAL_SOUND_ID));

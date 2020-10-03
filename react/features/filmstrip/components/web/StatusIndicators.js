@@ -2,7 +2,11 @@
 
 import React, { Component } from 'react';
 
-import { getLocalParticipant, getParticipantById, PARTICIPANT_ROLE } from '../../../base/participants';
+import {
+    getLocalParticipant,
+    getParticipantById,
+    isParticipantModerator
+} from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import { getCurrentLayout, LAYOUTS } from '../../../video-layout';
 
@@ -113,7 +117,7 @@ function _mapStateToProps(state, ownProps) {
     return {
         _currentLayout: getCurrentLayout(state),
         _showModeratorIndicator:
-            !interfaceConfig.DISABLE_FOCUS_INDICATOR && participant && participant.role === PARTICIPANT_ROLE.MODERATOR
+            !interfaceConfig.DISABLE_FOCUS_INDICATOR && participant && isParticipantModerator(participant)
     };
 }
 

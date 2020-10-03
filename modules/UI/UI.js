@@ -489,41 +489,6 @@ UI.getLargeVideo = function() {
 };
 
 /**
- * Show shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
-*/
-UI.onSharedVideoStart = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStart(id, url, attributes);
-    }
-};
-
-/**
- * Update shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
- */
-UI.onSharedVideoUpdate = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoUpdate(id, url, attributes);
-    }
-};
-
-/**
- * Stop showing shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} attributes
- */
-UI.onSharedVideoStop = function(id, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStop(id, attributes);
-    }
-};
-
-/**
  * Handles user's features changes.
  */
 UI.onUserFeaturesChanged = user => VideoLayout.onUserFeaturesChanged(user);

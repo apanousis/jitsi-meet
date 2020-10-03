@@ -8,11 +8,10 @@ import { ColorSchemeRegistry } from '../../../base/color-scheme';
 import { openDialog } from '../../../base/dialog';
 import { MEDIA_TYPE, VIDEO_TYPE } from '../../../base/media';
 import {
-    PARTICIPANT_ROLE,
     ParticipantView,
     getParticipantCount,
     isEveryoneModerator,
-    pinParticipant
+    pinParticipant, isParticipantModerator
 } from '../../../base/participants';
 import { Container } from '../../../base/react';
 import { connect } from '../../../base/redux';
@@ -262,7 +261,7 @@ function _mapStateToProps(state, ownProps) {
     const participantCount = getParticipantCount(state);
     const renderDominantSpeakerIndicator = participant.dominantSpeaker && participantCount > 2;
     const _isEveryoneModerator = isEveryoneModerator(state);
-    const renderModeratorIndicator = !_isEveryoneModerator && participant.role === PARTICIPANT_ROLE.MODERATOR;
+    const renderModeratorIndicator = !_isEveryoneModerator && isParticipantModerator(participant);
 
     return {
         _audioMuted: audioTrack?.muted ?? true,
