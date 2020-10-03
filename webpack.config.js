@@ -203,19 +203,7 @@ module.exports = [
     }),
     Object.assign({}, config, {
         entry: {
-            'dial_in_info_bundle': './react/features/invite/components/dial-in-info-page'
-        },
-        performance: getPerformanceHints(500 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
             'do_external_connect': './connection_optimization/do_external_connect.js'
-        },
-        performance: getPerformanceHints(5 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
-            'flacEncodeWorker': './react/features/local-recording/recording/flac/flacEncodeWorker.js'
         },
         performance: getPerformanceHints(5 * 1024)
     }),
@@ -230,26 +218,6 @@ module.exports = [
             'close3': './static/close3.js'
         },
         performance: getPerformanceHints(128 * 1024)
-    }),
-
-    // Because both video-blur-effect and rnnoise-processor modules are loaded
-    // in a lazy manner using the loadScript function with a hard coded name,
-    // i.e.loadScript('libs/rnnoise-processor.min.js'), webpack dev server
-    // won't know how to properly load them using the default config filename
-    // and sourceMapFilename parameters which target libs without .min in dev
-    // mode. Thus we change these modules to have the same filename in both
-    // prod and dev mode.
-    Object.assign({}, config, {
-        entry: {
-            'video-blur-effect': './react/features/stream-effects/blur/index.js'
-        },
-        output: Object.assign({}, config.output, {
-            library: [ 'JitsiMeetJS', 'app', 'effects' ],
-            libraryTarget: 'window',
-            filename: '[name].min.js',
-            sourceMapFilename: '[name].min.map'
-        }),
-        performance: getPerformanceHints(1 * 1024 * 1024)
     }),
 
     Object.assign({}, config, {

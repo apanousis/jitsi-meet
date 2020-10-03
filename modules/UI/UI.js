@@ -19,7 +19,6 @@ import {
 import UIEvents from '../../service/UI/UIEvents';
 
 import EtherpadManager from './etherpad/Etherpad';
-import SharedVideoManager from './shared_video/SharedVideo';
 import messageHandler from './util/MessageHandler';
 import UIUtil from './util/UIUtil';
 import VideoLayout from './videolayout/VideoLayout';
@@ -33,15 +32,11 @@ const eventEmitter = new EventEmitter();
 UI.eventEmitter = eventEmitter;
 
 let etherpadManager;
-let sharedVideoManager;
 
 const UIListeners = new Map([
     [
         UIEvents.ETHERPAD_CLICKED,
         () => etherpadManager && etherpadManager.toggleEtherpad()
-    ], [
-        UIEvents.SHARED_VIDEO_CLICKED,
-        () => sharedVideoManager && sharedVideoManager.toggleSharedVideo()
     ], [
         UIEvents.TOGGLE_FILMSTRIP,
         () => UI.toggleFilmstrip()
@@ -64,14 +59,6 @@ UI.isFullScreen = function() {
  */
 UI.isEtherpadVisible = function() {
     return Boolean(etherpadManager && etherpadManager.isVisible());
-};
-
-/**
- * Returns true if there is a shared video which is being shown (?).
- * @returns {boolean} - true if there is a shared video which is being shown.
- */
-UI.isSharedVideoShown = function() {
-    return Boolean(sharedVideoManager && sharedVideoManager.isSharedVideoShown);
 };
 
 /**
@@ -124,14 +111,6 @@ UI.initConference = function() {
 };
 
 /**
- * Returns the shared document manager object.
- * @return {EtherpadManager} the shared document manager object
- */
-UI.getSharedVideoManager = function() {
-    return sharedVideoManager;
-};
-
-/**
  * Starts the UI module and initializes all related components.
  *
  * @returns {boolean} true if the UI is ready and the conference should be
@@ -151,8 +130,6 @@ UI.start = function() {
     // the current dom layout, the quality label is part of the video layout and
     // will be seen animating in.
     VideoLayout.resizeVideoArea();
-
-    sharedVideoManager = new SharedVideoManager(eventEmitter);
 
     if (isMobileBrowser()) {
         $('body').addClass('mobile-browser');
@@ -270,12 +247,10 @@ UI.onPeerVideoTypeChanged
  * @param {string} status - The new status.
  */
 UI.updateUserStatus = (user, status) => {
-    const reduxState = APP.store.getState() || {};
-    const { calleeInfoVisible } = reduxState['features/invite'] || {};
 
     // We hide status updates when join/leave notifications are disabled,
     // as jigasi is the component with statuses and they are seen as join/leave notifications.
-    if (!status || calleeInfoVisible || joinLeaveNotificationsDisabled()) {
+    if (!status || joinLeaveNotificationsDisabled()) {
         return;
     }
 

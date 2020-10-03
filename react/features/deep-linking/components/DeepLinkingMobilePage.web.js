@@ -8,7 +8,6 @@ import { isSupportedMobileBrowser } from '../../base/environment';
 import { translate } from '../../base/i18n';
 import { Platform } from '../../base/react';
 import { connect } from '../../base/redux';
-import { DialInSummary } from '../../invite';
 import { openWebApp } from '../actions';
 import { _TNS } from '../constants';
 import { generateDeepLinkingURL } from '../functions';
@@ -170,10 +169,6 @@ class DeepLinkingMobilePage extends Component<Props> {
                             </a>
                     }
                     { renderPromotionalFooter() }
-                    <DialInSummary
-                        className = 'deep-linking-dial-in'
-                        clickableNumbers = { true }
-                        room = { _room } />
                 </div>
             </div>
         );

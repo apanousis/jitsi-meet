@@ -6,13 +6,10 @@ import { MEDIA_TYPE, VIDEO_TYPE } from '../../../react/features/base/media';
 import {
     getLocalParticipant as getLocalParticipantFromStore,
     getPinnedParticipant,
-    getParticipantById,
     pinParticipant
 } from '../../../react/features/base/participants';
 import { getTrackByMediaTypeAndParticipant } from '../../../react/features/base/tracks';
 import UIEvents from '../../../service/UI/UIEvents';
-import { SHARED_VIDEO_CONTAINER_TYPE } from '../shared_video/SharedVideo';
-import SharedVideoThumb from '../shared_video/SharedVideoThumb';
 
 import LargeVideoManager from './LargeVideoManager';
 import LocalVideo from './LocalVideo';
@@ -224,11 +221,6 @@ const VideoLayout = {
      */
     getRemoteVideoType(id) {
         const state = APP.store.getState();
-        const participant = getParticipantById(state, id);
-
-        if (participant?.isFakeParticipant) {
-            return SHARED_VIDEO_CONTAINER_TYPE;
-        }
 
         const videoTrack = getTrackByMediaTypeAndParticipant(state['features/base/tracks'], MEDIA_TYPE.VIDEO, id);
 
@@ -283,15 +275,6 @@ const VideoLayout = {
      */
     addRemoteParticipantContainer(participant) {
         if (!participant || participant.local) {
-            return;
-        } else if (participant.isFakeParticipant) {
-            const sharedVideoThumb = new SharedVideoThumb(
-                participant,
-                SHARED_VIDEO_CONTAINER_TYPE,
-                VideoLayout);
-
-            this.addRemoteVideoContainer(participant.id, sharedVideoThumb);
-
             return;
         }
 

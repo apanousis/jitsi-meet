@@ -1,16 +1,14 @@
 // @flow
 
 import React, { PureComponent } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { ColorSchemeRegistry } from '../../../base/color-scheme';
 import { getFeatureFlag, INVITE_ENABLED } from '../../../base/flags';
 import { translate } from '../../../base/i18n';
-import { Icon, IconAddPeople } from '../../../base/icons';
 import { getParticipantCount } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import { StyleType } from '../../../base/styles';
-import { doInvitePeople } from '../../../invite/actions.native';
 
 import styles from './styles';
 
@@ -49,16 +47,6 @@ type Props = {
  * Implements the UI elements to be displayed in the lonely meeting experience.
  */
 class LonelyMeetingExperience extends PureComponent<Props> {
-    /**
-     * Instantiates a new component.
-     *
-     * @inheritdoc
-     */
-    constructor(props: Props) {
-        super(props);
-
-        this._onPress = this._onPress.bind(this);
-    }
 
     /**
      * Implements {@code PureComponent#render}.
@@ -66,7 +54,7 @@ class LonelyMeetingExperience extends PureComponent<Props> {
      * @inheritdoc
      */
     render() {
-        const { _isInviteFunctionsDiabled, _isLonelyMeeting, _styles, t } = this.props;
+        const { _isLonelyMeeting, _styles, t } = this.props;
 
         if (!_isLonelyMeeting) {
             return null;
@@ -81,39 +69,8 @@ class LonelyMeetingExperience extends PureComponent<Props> {
                     ] }>
                     { t('lonelyMeetingExperience.youAreAlone') }
                 </Text>
-                { !_isInviteFunctionsDiabled && (
-                    <TouchableOpacity
-                        onPress = { this._onPress }
-                        style = { [
-                            styles.lonelyButton,
-                            _styles.lonelyButton
-                        ] }>
-                        <Icon
-                            size = { 24 }
-                            src = { IconAddPeople }
-                            style = { styles.lonelyButtonComponents } />
-                        <Text
-                            style = { [
-                                styles.lonelyButtonComponents,
-                                _styles.lonelyMessage
-                            ] }>
-                            { t('lonelyMeetingExperience.button') }
-                        </Text>
-                    </TouchableOpacity>
-                ) }
             </View>
         );
-    }
-
-    _onPress: () => void;
-
-    /**
-     * Callback for the onPress function of the button.
-     *
-     * @returns {void}
-     */
-    _onPress() {
-        this.props.dispatch(doInvitePeople());
     }
 }
 

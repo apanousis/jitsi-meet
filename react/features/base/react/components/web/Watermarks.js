@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 
-import { isVpaasMeeting } from '../../../../billing-counter/functions';
 import { translate } from '../../../i18n';
 import { connect } from '../../../redux';
 
@@ -32,16 +31,6 @@ type Props = {
      * The url of the user selected logo.
      */
     _customLogoUrl: string,
-
-    /**
-     * Whether or not the current user is logged in through a JWT.
-     */
-    _isGuest: boolean,
-
-    /**
-     * Whether or not the current meeting is a vpaas one.
-     */
-    _isVpaas: boolean,
 
     /**
      * Flag used to signal that the logo can be displayed.
@@ -178,13 +167,12 @@ class Watermarks extends Component<Props, State> {
             showJitsiWatermarkForGuests
         } = this.state;
         const {
-            _isGuest,
             _readyToDisplayJitsiWatermark,
             _welcomePageIsVisible
         } = this.props;
 
         return (_readyToDisplayJitsiWatermark
-            && (showJitsiWatermark || (_isGuest && showJitsiWatermarkForGuests)))
+            && (showJitsiWatermark || showJitsiWatermarkForGuests))
             || _welcomePageIsVisible;
     }
 
@@ -197,20 +185,13 @@ class Watermarks extends Component<Props, State> {
     _getBackgroundImageStyle() {
         const {
             _customLogoUrl,
-            _isVpaas,
             defaultJitsiLogoURL
         } = this.props;
         let style = 'none';
 
-        if (_isVpaas) {
-            if (_customLogoUrl) {
-                style = `url(${_customLogoUrl})`;
-            }
-        } else {
-            style = `url(${_customLogoUrl
-                || defaultJitsiLogoURL
-                || interfaceConfig.DEFAULT_LOGO_URL})`;
-        }
+        style = `url(${_customLogoUrl
+        || defaultJitsiLogoURL
+        || interfaceConfig.DEFAULT_LOGO_URL})`;
 
         return style;
     }
@@ -322,7 +303,6 @@ class Watermarks extends Component<Props, State> {
  * @returns {Props}
  */
 function _mapStateToProps(state) {
-    const { isGuest } = state['features/base/jwt'];
     const { customizationReady, logoClickUrl, logoImageUrl } = state['features/dynamic-branding'];
     const { room } = state['features/base/conference'];
 
@@ -336,8 +316,6 @@ function _mapStateToProps(state) {
          */
         _customLogoLink: logoClickUrl,
         _customLogoUrl: logoImageUrl,
-        _isGuest: isGuest,
-        _isVpaas: isVpaasMeeting(state),
         _readyToDisplayJitsiWatermark: customizationReady,
         _welcomePageIsVisible: !room
     };

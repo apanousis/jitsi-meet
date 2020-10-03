@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 
 import { connect } from '../../base/redux';
 import { fetchCustomBrandingData } from '../../dynamic-branding';
-import { Captions } from '../../subtitles/';
 
 declare var interfaceConfig: Object;
 
@@ -93,8 +92,6 @@ class LargeVideo extends Component<Props> {
                             playsInline = { true } /* for Safari on iOS to work */ />
                     </div>
                 </div>
-                { interfaceConfig.DISABLE_TRANSCRIPTION_SUBTITLES
-                    || <Captions /> }
             </div>
         );
     }

@@ -9,7 +9,6 @@ import { App } from './features/app/components';
 import { getLogger } from './features/base/logging/functions';
 import { Platform } from './features/base/react';
 import { getJitsiMeetGlobalNS } from './features/base/util';
-import PrejoinApp from './features/prejoin/components/PrejoinApp';
 
 const logger = getLogger('index.web');
 const OS = Platform.OS;
@@ -59,8 +58,7 @@ window.addEventListener('beforeunload', () => {
 const globalNS = getJitsiMeetGlobalNS();
 
 globalNS.entryPoints = {
-    APP: App,
-    PREJOIN: PrejoinApp
+    APP: App
 };
 
 globalNS.renderEntryPoint = ({

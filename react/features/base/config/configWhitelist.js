@@ -134,7 +134,6 @@ export default [
     'p2p',
     'pcStatsInterval',
     'preferH264',
-    'prejoinPageEnabled',
     'requireDisplayName',
     'remoteVideoMenu',
     'roomPasswordNumberOfDigits',

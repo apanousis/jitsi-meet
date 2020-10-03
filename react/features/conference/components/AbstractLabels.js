@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 
 import { E2EELabel } from '../../e2ee';
 import { isFilmstripVisible } from '../../filmstrip';
-import { TranscribingLabel } from '../../transcribing';
 import { shouldDisplayTileView } from '../../video-layout';
 import { VideoQualityLabel } from '../../video-quality';
 
@@ -43,18 +42,6 @@ export default class AbstractLabels<P: Props, S> extends Component<P, S> {
     _renderE2EELabel() {
         return (
             <E2EELabel />
-        );
-    }
-
-    /**
-     * Renders the {@code TranscribingLabel}.
-     *
-     * @protected
-     * @returns {React$Element}
-     */
-    _renderTranscribingLabel() {
-        return (
-            <TranscribingLabel />
         );
     }
 

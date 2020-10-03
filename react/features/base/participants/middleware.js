@@ -331,7 +331,6 @@ function _maybePlaySounds({ getState, dispatch }, action) {
         if (action.type === PARTICIPANT_JOINED) {
             const { presence } = action.participant;
 
-            // The sounds for the poltergeist are handled by features/invite.
             if (presence !== INVITED && presence !== CALLING) {
                 dispatch(playSound(PARTICIPANT_JOINED_SOUND_ID));
             }

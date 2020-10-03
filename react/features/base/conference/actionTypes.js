@@ -1,16 +1,4 @@
 /**
- * The type of (redux) action which signals that server authentication has
- * becoming available or unavailable or logged in user has changed.
- *
- * {
- *     type: AUTH_STATUS_CHANGED,
- *     authEnabled: boolean,
- *     authLogin: string
- * }
- */
-export const AUTH_STATUS_CHANGED = 'AUTH_STATUS_CHANGED';
-
-/**
  * The type of (redux) action which signals that a specific conference failed.
  *
  * {
@@ -106,18 +94,6 @@ export const DATA_CHANNEL_OPENED = 'DATA_CHANNEL_OPENED';
 export const KICKED_OUT = 'KICKED_OUT';
 
 /**
- * The type of (redux) action which signals that the lock state of a specific
- * {@code JitsiConference} changed.
- *
- * {
- *     type: LOCK_STATE_CHANGED,
- *     conference: JitsiConference,
- *     locked: boolean
- * }
- */
-export const LOCK_STATE_CHANGED = 'LOCK_STATE_CHANGED';
-
-/**
  * The type of (redux) action which sets the peer2peer flag for the current
  * conference.
  *
@@ -162,30 +138,6 @@ export const SET_DESKTOP_SHARING_ENABLED
  * }
  */
 export const SET_FOLLOW_ME = 'SET_FOLLOW_ME';
-
-/**
- * The type of (redux) action which sets the password to join or lock a specific
- * {@code JitsiConference}.
- *
- * {
- *     type: SET_PASSWORD,
- *     conference: JitsiConference,
- *     method: Function
- *     password: string
- * }
- */
-export const SET_PASSWORD = 'SET_PASSWORD';
-
-/**
- * The type of (redux) action which signals that setting a password on a
- * {@code JitsiConference} failed (with an error).
- *
- * {
- *     type: SET_PASSWORD_FAILED,
- *     error: string
- * }
- */
-export const SET_PASSWORD_FAILED = 'SET_PASSWORD_FAILED';
 
 /**
  * The type of (redux) action which signals for pending subject changes.

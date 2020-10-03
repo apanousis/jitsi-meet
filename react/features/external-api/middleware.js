@@ -20,7 +20,6 @@ import {
 import { MiddlewareRegistry } from '../base/redux';
 import { getBaseUrl } from '../base/util';
 import { appendSuffix } from '../display-name';
-import { SUBMIT_FEEDBACK_ERROR, SUBMIT_FEEDBACK_SUCCESS } from '../feedback';
 import { SET_FILMSTRIP_VISIBLE } from '../filmstrip';
 
 import './subscriber';
@@ -77,7 +76,7 @@ MiddlewareRegistry.register(store => next => action => {
     switch (action.type) {
     case CONFERENCE_FAILED: {
         if (action.conference
-            && action.error.name === JitsiConferenceErrors.PASSWORD_REQUIRED) {
+                && action.error.name === JitsiConferenceErrors.PASSWORD_REQUIRED) {
             APP.API.notifyOnPasswordRequired();
         }
         break;
@@ -89,16 +88,16 @@ MiddlewareRegistry.register(store => next => action => {
         const { loadableAvatarUrl, name, id } = getLocalParticipant(state);
 
         APP.API.notifyConferenceJoined(
-            room,
-            id,
-            {
-                displayName: name,
-                formattedDisplayName: appendSuffix(
-                    name,
-                    interfaceConfig.DEFAULT_LOCAL_DISPLAY_NAME
-                ),
-                avatarURL: loadableAvatarUrl
-            }
+                room,
+                id,
+                {
+                    displayName: name,
+                    formattedDisplayName: appendSuffix(
+                        name,
+                        interfaceConfig.DEFAULT_LOCAL_DISPLAY_NAME
+                    ),
+                    avatarURL: loadableAvatarUrl
+                }
         );
         break;
     }
@@ -109,18 +108,18 @@ MiddlewareRegistry.register(store => next => action => {
 
     case KICKED_OUT:
         APP.API.notifyKickedOut(
-            {
-                id: getLocalParticipant(store.getState()).id,
-                local: true
-            },
-            { id: action.participant.getId() }
+                {
+                    id: getLocalParticipant(store.getState()).id,
+                    local: true
+                },
+                { id: action.participant.getId() }
         );
         break;
 
     case NOTIFY_CAMERA_ERROR:
         if (action.error) {
             APP.API.notifyOnCameraError(
-              action.error.name, action.error.message);
+                    action.error.name, action.error.message);
         }
         break;
 
@@ -132,11 +131,11 @@ MiddlewareRegistry.register(store => next => action => {
 
     case PARTICIPANT_KICKED:
         APP.API.notifyKickedOut(
-            {
-                id: action.kicked,
-                local: false
-            },
-            { id: action.kicker });
+                {
+                    id: action.kicked,
+                    local: false
+                },
+                { id: action.kicker });
         break;
 
     case PARTICIPANT_LEFT:
@@ -153,7 +152,7 @@ MiddlewareRegistry.register(store => next => action => {
             APP.API.notifyUserJoined(id, {
                 displayName: name,
                 formattedDisplayName: appendSuffix(
-                    name || interfaceConfig.DEFAULT_REMOTE_DISPLAY_NAME)
+                        name || interfaceConfig.DEFAULT_REMOTE_DISPLAY_NAME)
             });
         }
 
@@ -166,14 +165,6 @@ MiddlewareRegistry.register(store => next => action => {
 
     case SET_FILMSTRIP_VISIBLE:
         APP.API.notifyFilmstripDisplayChanged(action.visible);
-        break;
-
-    case SUBMIT_FEEDBACK_ERROR:
-        APP.API.notifyFeedbackSubmitted(action.error || 'Unknown error');
-        break;
-
-    case SUBMIT_FEEDBACK_SUCCESS:
-        APP.API.notifyFeedbackSubmitted();
         break;
     }
 

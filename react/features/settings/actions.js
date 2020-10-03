@@ -4,7 +4,6 @@ import { setFollowMe, setStartMutedPolicy } from '../base/conference';
 import { openDialog } from '../base/dialog';
 import { i18next } from '../base/i18n';
 import { updateSettings } from '../base/settings';
-import { setPrejoinPageVisibility } from '../prejoin/actions';
 
 import {
     SET_AUDIO_SETTINGS_VISIBILITY,
@@ -69,11 +68,6 @@ export function submitMoreTab(newState: Object): Function {
         const showPrejoinPage = newState.showPrejoinPage;
 
         if (showPrejoinPage !== currentState.showPrejoinPage) {
-            // The 'showPrejoin' flag starts as 'true' on every new session.
-            // This prevents displaying the prejoin page when the user re-enables it.
-            if (showPrejoinPage && getState()['features/prejoin']?.showPrejoin) {
-                dispatch(setPrejoinPageVisibility(false));
-            }
             dispatch(updateSettings({
                 userSelectedSkipPrejoin: !showPrejoinPage
             }));

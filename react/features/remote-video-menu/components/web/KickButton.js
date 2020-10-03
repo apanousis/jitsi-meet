@@ -4,6 +4,7 @@ import React from 'react';
 
 import { translate } from '../../../base/i18n';
 import { IconKick } from '../../../base/icons';
+import { getParticipantById, isParticipantModerator } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import AbstractKickButton, {
     type Props
@@ -42,10 +43,10 @@ class KickButton extends AbstractKickButton {
      * @returns {ReactElement}
      */
     render() {
-        const { participantID, t, visible } = this.props;
+        const { participantID, t } = this.props;
 
-        if (!visible) {
-            return null;
+        if (isParticipantModerator(getParticipantById(this.state, participantID))) {
+            return;
         }
 
         return (
@@ -62,21 +63,5 @@ class KickButton extends AbstractKickButton {
     _handleClick: () => void
 }
 
-/**
- * Maps (parts of) the redux state to {@link KickButton}'s React {@code Component}
- * props.
- *
- * @param {Object} state - The redux store/state.
- * @private
- * @returns {Object}
- */
-function _mapStateToProps(state: Object) {
-    const shouldHide = interfaceConfig.HIDE_KICK_BUTTON_FOR_GUESTS && state['features/base/jwt'].isGuest;
-
-    return {
-        visible: !shouldHide
-    };
-}
-
-export default translate(connect(_mapStateToProps)(KickButton));
+export default translate(connect()(KickButton));
 

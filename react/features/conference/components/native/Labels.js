@@ -3,10 +3,8 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
-import { JitsiRecordingConstants } from '../../../base/lib-jitsi-meet';
 import { connect } from '../../../base/redux';
 import { ASPECT_RATIO_WIDE } from '../../../base/responsive-ui/constants';
-import { TranscribingExpandedLabel } from '../../../transcribing';
 import { VideoQualityExpandedLabel } from '../../../video-quality';
 import { shouldDisplayNotifications } from '../../functions';
 import AbstractLabels, {
@@ -74,9 +72,6 @@ type State = {
 }
 
 const LABEL_ID_QUALITY = 'quality';
-const LABEL_ID_RECORDING = 'recording';
-const LABEL_ID_STREAMING = 'streaming';
-const LABEL_ID_TRANSCRIBING = 'transcribing';
 const LABEL_ID_INSECURE_ROOM_NAME = 'insecure-room-name';
 
 /**
@@ -85,7 +80,6 @@ const LABEL_ID_INSECURE_ROOM_NAME = 'insecure-room-name';
  */
 const EXPANDED_LABELS = {
     quality: VideoQualityExpandedLabel,
-    transcribing: TranscribingExpandedLabel,
     'insecure-room-name': InsecureRoomNameExpandedLabel
 };
 
@@ -157,17 +151,6 @@ class Labels extends AbstractLabels<Props, State> {
                             && styles.indicatorContainerWide
                     ] }>
 
-                    <TouchableOpacity
-                        onLayout = {
-                            this._createOnLayout(LABEL_ID_TRANSCRIBING)
-                        }
-                        onPress = {
-                            this._createOnPress(LABEL_ID_TRANSCRIBING)
-                        } >
-                        {
-                            this._renderTranscribingLabel()
-                        }
-                    </TouchableOpacity>
                     <TouchableOpacity
                         onLayout = {
                             this._createOnLayout(LABEL_ID_INSECURE_ROOM_NAME)
@@ -306,8 +289,6 @@ class Labels extends AbstractLabels<Props, State> {
 
         return null;
     }
-
-    _renderTranscribingLabel: () => React$Element<any>;
 
     _renderInsecureRoomNameLabel: () => React$Element<any>;
 

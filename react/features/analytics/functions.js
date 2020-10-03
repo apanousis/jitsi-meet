@@ -2,13 +2,8 @@
 
 import { API_ID } from '../../../modules/API/constants';
 import { getName as getAppName } from '../app/functions';
-import {
-    checkChromeExtensionsInstalled,
-    isMobileBrowser
-} from '../base/environment/utils';
 import JitsiMeetJS, {
     analytics,
-    browser,
     isAnalyticsEnabled
 } from '../base/lib-jitsi-meet';
 import { getJitsiMeetGlobalNS, loadScript } from '../base/util';
@@ -24,7 +19,6 @@ import logger from './logger';
  * @returns {void}
  */
 export function sendAnalytics(event: Object) {
-    return;
     try {
         analytics.sendEvent(event);
     } catch (e) {
@@ -83,7 +77,6 @@ export function createHandlers({ getState }: { getState: Function }) {
         matomoSiteID,
         whiteListedEvents
     } = analyticsConfig;
-    const { group, user } = state['features/base/jwt'];
     const handlerConstructorOptions = {
         amplitudeAPPKey,
         blackListedEvents,
@@ -91,11 +84,9 @@ export function createHandlers({ getState }: { getState: Function }) {
         googleAnalyticsTrackingId,
         matomoEndpoint,
         matomoSiteID,
-        group,
         host,
         product: deploymentInfo && deploymentInfo.product,
         subproduct: deploymentInfo && deploymentInfo.environment,
-        user: user && user.id,
         version: JitsiMeetJS.version,
         whiteListedEvents
     };
@@ -158,16 +149,8 @@ export function initAnalytics({ getState }: { getState: Function }, handlers: Ar
     const {
         deploymentInfo
     } = config;
-    const { group, server } = state['features/base/jwt'];
     const roomName = state['features/base/conference'].room;
     const permanentProperties = {};
-
-    if (server) {
-        permanentProperties.server = server;
-    }
-    if (group) {
-        permanentProperties.group = group;
-    }
 
     // Report the application name
     permanentProperties.appName = getAppName();

@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-import { JitsiRecordingConstants } from '../../../base/lib-jitsi-meet';
 import { connect } from '../../../base/redux';
 import AbstractLabels, {
     _abstractMapStateToProps as _mapStateToProps,
@@ -79,9 +78,6 @@ class Labels extends AbstractLabels<Props, State> {
                     this._renderE2EELabel()
                 }
                 {
-                    this._renderTranscribingLabel()
-                }
-                {
                     this.props._showVideoQualityLabel && !VIDEO_QUALITY_LABEL_DISABLED
                         && this._renderVideoQualityLabel()
                 }
@@ -95,8 +91,6 @@ class Labels extends AbstractLabels<Props, State> {
     _renderE2EELabel: () => React$Element<*>;
 
     _renderLocalRecordingLabel: () => React$Element<*>;
-
-    _renderTranscribingLabel: () => React$Element<*>;
 
     _renderInsecureRoomNameLabel: () => React$Element<any>;
 

@@ -9,22 +9,16 @@ import {
 } from '../../react/features/analytics';
 import {
     sendTones,
-    setPassword,
     setSubject
 } from '../../react/features/base/conference';
-import { parseJWTFromURLParams } from '../../react/features/base/jwt';
 import {
     processExternalDeviceRequest
 } from '../../react/features/device-selection/functions';
 import { setE2EEKey } from '../../react/features/e2ee';
-import { invite } from '../../react/features/invite';
-import { toggleLobbyMode } from '../../react/features/lobby/actions.web';
 import { muteAllParticipants } from '../../react/features/remote-video-menu/actions';
 import { toggleTileView } from '../../react/features/video-layout';
 import { setVideoQuality } from '../../react/features/video-quality';
 import { getJitsiMeetTransport } from '../transport';
-
-import { API_ID, ENDPOINT_TEXT_MESSAGE_NAME } from './constants';
 
 const logger = Logger.getLogger(__filename);
 
@@ -85,31 +79,6 @@ function initCommands() {
 
             APP.store.dispatch(muteAllParticipants(localIds));
         },
-        'toggle-lobby': isLobbyEnabled => {
-            APP.store.dispatch(toggleLobbyMode(isLobbyEnabled));
-        },
-        'password': password => {
-            const { conference, passwordRequired }
-                = APP.store.getState()['features/base/conference'];
-
-            if (passwordRequired) {
-                sendAnalytics(createApiEvent('submit.password'));
-
-                APP.store.dispatch(setPassword(
-                    passwordRequired,
-                    passwordRequired.join,
-                    password
-                ));
-            } else {
-                sendAnalytics(createApiEvent('password.changed'));
-
-                APP.store.dispatch(setPassword(
-                    conference,
-                    conference.lock,
-                    password
-                ));
-            }
-        },
         'proxy-connection-event': event => {
             APP.conference.onProxyConnectionEvent(event);
         },
@@ -140,20 +109,6 @@ function initCommands() {
             sendAnalytics(createApiEvent('film.strip.toggled'));
             APP.UI.toggleFilmstrip();
         },
-
-        /**
-         * Callback to invoke when the "toggle-share-screen" command is received.
-         *
-         * @param {Object} options - Additional details of how to perform
-         * the action. Note this parameter is undocumented and experimental.
-         * @param {boolean} options.enable - Whether trying to enable screen
-         * sharing or to turn it off.
-         * @returns {void}
-         */
-        'toggle-share-screen': (options = {}) => {
-            sendAnalytics(createApiEvent('screen.sharing.toggled'));
-            toggleScreenSharing(options.enable);
-        },
         'toggle-tile-view': () => {
             sendAnalytics(createApiEvent('tile-view.toggled'));
 
@@ -170,17 +125,6 @@ function initCommands() {
         'avatar-url': avatarUrl => {
             sendAnalytics(createApiEvent('avatar.url.changed'));
             APP.conference.changeLocalAvatarUrl(avatarUrl);
-        },
-        'send-endpoint-text-message': (to, text) => {
-            logger.debug('Send endpoint message command received');
-            try {
-                APP.conference.sendEndpointMessage(to, {
-                    name: ENDPOINT_TEXT_MESSAGE_NAME,
-                    text
-                });
-            } catch (err) {
-                logger.error('Failed sending endpoint text message', err);
-            }
         },
         'e2ee-key': key => {
             logger.debug('Set E2EE key command received');
@@ -211,38 +155,6 @@ function initCommands() {
         const { name } = request;
 
         switch (name) {
-        case 'invite': {
-            const { invitees } = request;
-
-            if (!Array.isArray(invitees) || invitees.length === 0) {
-                callback({
-                    error: new Error('Unexpected format of invitees')
-                });
-
-                break;
-            }
-
-            // The store should be already available because API.init is called
-            // on appWillMount action.
-            APP.store.dispatch(
-                invite(invitees, true))
-                .then(failedInvitees => {
-                    let error;
-                    let result;
-
-                    if (failedInvitees.length) {
-                        error = new Error('One or more invites failed!');
-                    } else {
-                        result = true;
-                    }
-
-                    callback({
-                        error,
-                        result
-                    });
-                });
-            break;
-        }
         case 'is-audio-muted':
             callback(APP.conference.isLocalAudioMuted());
             break;
@@ -277,23 +189,6 @@ function onDesktopSharingEnabledChanged(enabled = false) {
     if (enabled && initialScreenSharingState) {
         toggleScreenSharing();
     }
-}
-
-/**
- * Check whether the API should be enabled or not.
- *
- * @returns {boolean}
- */
-function shouldBeEnabled() {
-    return (
-        typeof API_ID === 'number'
-
-            // XXX Enable the API when a JSON Web Token (JWT) is specified in
-            // the location/URL because then it is very likely that the Jitsi
-            // Meet (Web) app is being used by an external/wrapping (Web) app
-            // and, consequently, the latter will need to communicate with the
-            // former. (The described logic is merely a heuristic though.)
-            || parseJWTFromURLParams());
 }
 
 /**
@@ -332,9 +227,6 @@ class API {
      * @returns {void}
      */
     init() {
-        if (!shouldBeEnabled()) {
-            return;
-        }
 
         /**
          * Current status (enabled/disabled) of API.
@@ -343,10 +235,6 @@ class API {
          * @type {boolean}
          */
         this._enabled = true;
-
-        APP.conference.addListener(
-            JitsiMeetConferenceEvents.DESKTOP_SHARING_ENABLED_CHANGED,
-            onDesktopSharingEnabledChanged);
 
         initCommands();
     }

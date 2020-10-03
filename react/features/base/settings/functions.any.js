@@ -40,18 +40,7 @@ export function getPropertyValue(
         ...sources
     };
 
-    // Precedence: jwt -> urlParams -> settings -> config.
-
     const state = toState(stateful);
-
-    // jwt
-    if (sources.jwt) {
-        const value = state['features/base/jwt'][propertyName];
-
-        if (typeof value !== 'undefined') {
-            return value[propertyName];
-        }
-    }
 
     // urlParams
     if (sources.urlParams) {

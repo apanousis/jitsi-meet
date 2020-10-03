@@ -18,9 +18,7 @@ import {
     isFilmstripVisible,
     TileView
 } from '../../../filmstrip';
-import { AddPeopleDialog } from '../../../invite';
 import { LargeVideo } from '../../../large-video';
-import { KnockingParticipantList } from '../../../lobby';
 import { BackButtonRegistry } from '../../../mobile/back-button';
 import { setToolboxVisible } from '../../../toolbox/actions';
 import { Toolbox } from '../../../toolbox/components/native';
@@ -281,7 +279,6 @@ class Conference extends AbstractConference<Props, *> {
                     style = { styles.navBarSafeView }>
                     <NavigationBar />
                     { this._renderNotificationsContainer() }
-                    <KnockingParticipantList />
                 </SafeAreaView>
 
                 <TestConnectionInfo />

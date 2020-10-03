@@ -124,14 +124,13 @@ class SettingsDialog extends Component<Props> {
  */
 function _mapStateToProps(state) {
     const configuredTabs = interfaceConfig.SETTINGS_SECTIONS || [];
-    const jwt = state['features/base/jwt'];
 
     // The settings sections to display.
     const showDeviceSettings = configuredTabs.includes('devices');
     const moreTabProps = getMoreTabProps(state);
     const { showModeratorSettings, showLanguageSettings, showPrejoinSettings } = moreTabProps;
     const showProfileSettings
-        = configuredTabs.includes('profile') && jwt.isGuest;
+        = configuredTabs.includes('profile');
 
     const tabs = [];
 

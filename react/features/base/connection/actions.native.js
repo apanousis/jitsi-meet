@@ -80,8 +80,7 @@ export function connect(id: ?string, password: ?string) {
         const state = getState();
         const options = _constructOptions(state);
         const { locationURL } = state['features/base/connection'];
-        const { jwt } = state['features/base/jwt'];
-        const connection = new JitsiMeetJS.JitsiConnection(options.appId, jwt, options);
+        const connection = new JitsiMeetJS.JitsiConnection(options.appId, null, options);
 
         connection[JITSI_CONNECTION_URL_KEY] = locationURL;
 
