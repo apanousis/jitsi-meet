@@ -94,25 +94,6 @@ class Avatar<P: Props> extends PureComponent<P, State> {
     }
 
     /**
-     * Implements {@code Component#componentDidUpdate}.
-     *
-     * @inheritdoc
-     */
-    componentDidUpdate(prevProps: P) {
-        if (prevProps.url !== this.props.url) {
-
-            // URI changed, so we need to try to fetch it again.
-            // Eslint doesn't like this statement, but based on the React doc, it's safe if it's
-            // wrapped in a condition: https://reactjs.org/docs/react-component.html#componentdidupdate
-
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({
-                avatarFailed: false
-            });
-        }
-    }
-
-    /**
      * Implements {@code Componenr#render}.
      *
      * @inheritdoc

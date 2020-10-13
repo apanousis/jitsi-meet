@@ -45,14 +45,6 @@ type Props = {
     visible: boolean,
 };
 
-type State = {
-
-    /**
-     * Whether the app has video permissions or not.
-     */
-    hasPermissions: boolean,
-};
-
 /**
  * Button used for video & video settings.
  *
@@ -71,9 +63,6 @@ class VideoSettingsButton extends Component<Props, State> {
         super(props);
 
         this._isMounted = true;
-        this.state = {
-            hasPermissions: false
-        };
     }
 
     /**
@@ -84,42 +73,7 @@ class VideoSettingsButton extends Component<Props, State> {
     _isIconDisabled() {
         const { hasVideoTrack, isDisabled } = this.props;
 
-        return (!this.state.hasPermissions || isDisabled) && !hasVideoTrack;
-    }
-
-    /**
-     * Updates device permissions.
-     *
-     * @returns {Promise<void>}
-     */
-    async _updatePermissions() {
-        const hasPermissions = await JitsiMeetJS.mediaDevices.isDevicePermissionGranted(
-            'video',
-        );
-
-        this._isMounted && this.setState({
-            hasPermissions
-        });
-    }
-
-    /**
-     * Implements React's {@link Component#componentDidMount}.
-     *
-     * @inheritdoc
-     */
-    componentDidMount() {
-        this._updatePermissions();
-    }
-
-    /**
-     * Implements React's {@link Component#componentDidUpdate}.
-     *
-     * @inheritdoc
-     */
-    componentDidUpdate(prevProps) {
-        if (this.props.permissionPromptVisibility !== prevProps.permissionPromptVisibility) {
-            this._updatePermissions();
-        }
+        return isDisabled && !hasVideoTrack;
     }
 
     /**

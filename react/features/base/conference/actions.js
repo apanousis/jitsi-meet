@@ -201,6 +201,7 @@ function _addConferenceListeners(conference, dispatch) {
         (data, id) => dispatch(participantUpdated({
             conference,
             id,
+            emailOnly: true,
             email: data.value
         })));
 }

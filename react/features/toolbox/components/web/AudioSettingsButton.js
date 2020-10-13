@@ -37,14 +37,6 @@ type Props = {
     visible: boolean,
 };
 
-type State = {
-
-    /**
-     * If there are permissions for audio devices.
-     */
-    hasPermissions: boolean,
-}
-
 /**
  * Button used for audio & audio settings.
  *
@@ -63,44 +55,6 @@ class AudioSettingsButton extends Component<Props, State> {
         super(props);
 
         this._isMounted = true;
-        this.state = {
-            hasPermissions: false
-        };
-    }
-
-    /**
-     * Updates device permissions.
-     *
-     * @returns {Promise<void>}
-     */
-    async _updatePermissions() {
-        const hasPermissions = await JitsiMeetJS.mediaDevices.isDevicePermissionGranted(
-            'audio',
-        );
-
-        this._isMounted && this.setState({
-            hasPermissions
-        });
-    }
-
-    /**
-     * Implements React's {@link Component#componentDidMount}.
-     *
-     * @inheritdoc
-     */
-    componentDidMount() {
-        this._updatePermissions();
-    }
-
-    /**
-     * Implements React's {@link Component#componentDidUpdate}.
-     *
-     * @inheritdoc
-     */
-    componentDidUpdate(prevProps) {
-        if (this.props.permissionPromptVisibility !== prevProps.permissionPromptVisibility) {
-            this._updatePermissions();
-        }
     }
 
     /**
@@ -119,8 +73,7 @@ class AudioSettingsButton extends Component<Props, State> {
      */
     render() {
         const { isDisabled, onAudioOptionsClick, visible } = this.props;
-        const settingsDisabled = !this.state.hasPermissions
-            || isDisabled
+        const settingsDisabled = isDisabled
             || !JitsiMeetJS.mediaDevices.isMultipleAudioInputSupported();
 
         return visible ? (

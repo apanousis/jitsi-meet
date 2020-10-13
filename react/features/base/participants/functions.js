@@ -210,7 +210,7 @@ export function getYoutubeParticipant(stateful: Object | Function) {
  * @returns {boolean}
  */
 export function isParticipantModerator(participant: Object) {
-    return participant.email && participant.email.endsWith('-true');
+    return participant.email && participant.email?.endsWith('-true');
 }
 
 /**
