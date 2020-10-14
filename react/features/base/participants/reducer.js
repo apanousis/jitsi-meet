@@ -12,7 +12,6 @@ import {
     SET_LOADABLE_AVATAR_URL
 } from './actionTypes';
 import { LOCAL_PARTICIPANT_DEFAULT_ID, PARTICIPANT_ROLE } from './constants';
-import { participantCanBeSeen } from './functions';
 
 /**
  * Participant object.
@@ -65,6 +64,7 @@ const PARTICIPANT_PROPS_TO_OMIT_WHEN_UPDATE = [
  */
 ReducerRegistry.register('features/base/participants', (state = [], action) => {
     switch (action.type) {
+    case SET_LOADABLE_AVATAR_URL:
     case DOMINANT_SPEAKER_CHANGED:
     case PARTICIPANT_ID_CHANGED:
     case PARTICIPANT_UPDATED:
@@ -147,7 +147,8 @@ function _participant(state: Object = {}, action) {
             const newState = { ...state };
 
             for (const key in participant) {
-                if (PARTICIPANT_PROPS_TO_OMIT_WHEN_UPDATE.indexOf(key)
+                if (participant.hasOwnProperty(key)
+                        && PARTICIPANT_PROPS_TO_OMIT_WHEN_UPDATE.indexOf(key)
                             === -1) {
                     newState[key] = participant[key];
                 }

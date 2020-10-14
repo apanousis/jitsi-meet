@@ -288,12 +288,11 @@ class TileView extends Component<Props> {
  */
 function _mapStateToProps(state) {
     const responsiveUi = state['features/base/responsive-ui'];
-    const participants = state['features/base/participants'];
 
     return {
         _aspectRatio: responsiveUi.aspectRatio,
         _height: responsiveUi.clientHeight,
-        _participants: participants,
+        _participants: state['features/base/participants'],
         _width: responsiveUi.clientWidth
     };
 }

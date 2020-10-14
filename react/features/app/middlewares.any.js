@@ -28,7 +28,6 @@ import '../large-video/middleware';
 import '../notifications/middleware';
 import '../overlay/middleware';
 import '../rejoin/middleware';
-import '../rtcstats/middleware';
 import '../toolbox/middleware';
 import '../video-layout/middleware';
 import '../video-quality/middleware';
