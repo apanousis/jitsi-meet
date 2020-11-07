@@ -34,8 +34,7 @@ export default class NoMobileApp extends Component<*> {
         return (
             <div className = { ns }>
                 <p className = { `${ns}__description` }>
-                    Please use { interfaceConfig.NATIVE_APP_NAME } on desktop to
-                    join calls.
+                    Download the Kinesis Training mobile app <a href = { 'https://kinesis-training.com' }>here</a> to join the training rooms.
                 </p>
             </div>
         );

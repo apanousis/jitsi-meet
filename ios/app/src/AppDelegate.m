@@ -20,7 +20,6 @@
 #import "Types.h"
 #import "ViewController.h"
 
-@import Crashlytics;
 @import Fabric;
 @import Firebase;
 @import JitsiMeet;
@@ -46,13 +45,6 @@
         [builder setFeatureFlag:@"ios.recording.enabled" withBoolean:YES];
 #endif
     }];
-
-    // Initialize Crashlytics and Firebase if a valid GoogleService-Info.plist file was provided.
-    if ([FIRUtilities appContainsRealServiceInfoPlist] && ![jitsiMeet isCrashReportingDisabled]) {
-        NSLog(@"Enabling Crashlytics and Firebase");
-        [FIRApp configure];
-        [Fabric with:@[[Crashlytics class]]];
-    }
 
     [jitsiMeet application:application didFinishLaunchingWithOptions:launchOptions];
 
