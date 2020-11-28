@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 
 import { connect } from '../../base/redux';
+import { Subject } from '../../conference';
 import { fetchCustomBrandingData } from '../../dynamic-branding';
 
 declare var interfaceConfig: Object;
@@ -62,6 +63,7 @@ class LargeVideo extends Component<Props> {
                 className = { className }
                 id = 'largeVideoContainer'
                 style = { style }>
+                <Subject />
                 <div id = 'sharedVideo'>
                     <div id = 'sharedVideoIFrame' />
                 </div>
