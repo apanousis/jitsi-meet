@@ -116,7 +116,7 @@
             @include minHWAutoFix();
             flex-direction: column-reverse;
             overflow: visible;
-            width: calc(100% - 8px); // 8px for margin + border of the thumbnails
+            width: 100%; // 8px for margin + border of the thumbnails
 
             .videocontainer {
                 height: 0px;
@@ -189,7 +189,7 @@
     .vertical-filmstrip {
         #remoteVideos #filmstripRemoteVideos {
             #filmstripRemoteVideosContainer {
-                width: calc(100% - 15px) // 8 px - margins + border of the thumbnails; 7px - for the scroll
+                width: 100% // 8 px - margins + border of the thumbnails; 7px - for the scroll
             }
         }
     }
