@@ -10,8 +10,6 @@ import { Container, LoadingIndicator, TintedView } from '../../../base/react';
 import { connect } from '../../../base/redux';
 import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
 import { TestConnectionInfo } from '../../../base/testing';
-import { ConferenceNotification, isCalendarEnabled } from '../../../calendar-sync';
-import { Chat } from '../../../chat';
 import { DisplayNameLabel } from '../../../display-name';
 import { SharedDocument } from '../../../etherpad';
 import {
@@ -20,11 +18,8 @@ import {
     isFilmstripVisible,
     TileView
 } from '../../../filmstrip';
-import { AddPeopleDialog, CalleeInfoContainer } from '../../../invite';
 import { LargeVideo } from '../../../large-video';
-import { KnockingParticipantList } from '../../../lobby';
 import { BackButtonRegistry } from '../../../mobile/back-button';
-import { Captions } from '../../../subtitles';
 import { setToolboxVisible } from '../../../toolbox/actions';
 import { Toolbox } from '../../../toolbox/components/native';
 import { isToolboxVisible } from '../../../toolbox/functions';
@@ -49,11 +44,6 @@ type Props = AbstractProps & {
      * Application's aspect ratio.
      */
     _aspectRatio: Symbol,
-
-    /**
-     * Wherther the calendar feature is enabled or not.
-     */
-    _calendarEnabled: boolean,
 
     /**
      * The indicator which determines that we are still connecting to the
@@ -202,25 +192,8 @@ class Conference extends AbstractConference<Props, *> {
      */
     _renderConferenceModals() {
         return [
-            <AddPeopleDialog key = 'addPeopleDialog' />,
-            <Chat key = 'chat' />,
             <SharedDocument key = 'sharedDocument' />
         ];
-    }
-
-    /**
-     * Renders the conference notification badge if the feature is enabled.
-     *
-     * @private
-     * @returns {React$Node}
-     */
-    _renderConferenceNotification() {
-        const { _calendarEnabled, _reducedUI } = this.props;
-
-        return (
-            _calendarEnabled && !_reducedUI
-                ? <ConferenceNotification />
-                : undefined);
     }
 
     /**
@@ -232,7 +205,6 @@ class Conference extends AbstractConference<Props, *> {
     _renderContent() {
         const {
             _aspectRatio,
-            _connecting,
             _filmstripVisible,
             _largeVideoParticipantId,
             _reducedUI,
@@ -257,22 +229,6 @@ class Conference extends AbstractConference<Props, *> {
                         : <LargeVideo onClick = { this._onClick } />
                 }
 
-                {/*
-                  * If there is a ringing call, show the callee's info.
-                  */
-                    <CalleeInfoContainer />
-                }
-
-                {/*
-                  * The activity/loading indicator goes above everything, except
-                  * the toolbox/toolbars and the dialogs.
-                  */
-                    _connecting
-                        && <TintedView>
-                            <LoadingIndicator />
-                        </TintedView>
-                }
-
                 <SafeAreaView
                     pointerEvents = 'box-none'
                     style = { styles.toolboxAndFilmstripContainer }>
@@ -294,8 +250,6 @@ class Conference extends AbstractConference<Props, *> {
                         ] } />}
 
                     <Labels />
-
-                    <Captions onPress = { this._onClick } />
 
                     { _shouldDisplayTileView || <Container style = { styles.displayNameContainer }>
                         <DisplayNameLabel participantId = { _largeVideoParticipantId } />
@@ -325,14 +279,9 @@ class Conference extends AbstractConference<Props, *> {
                     style = { styles.navBarSafeView }>
                     <NavigationBar />
                     { this._renderNotificationsContainer() }
-                    <KnockingParticipantList />
                 </SafeAreaView>
 
                 <TestConnectionInfo />
-
-                { this._renderConferenceNotification() }
-
-                { this._renderConferenceModals() }
             </>
         );
     }
@@ -440,7 +389,6 @@ function _mapStateToProps(state) {
     return {
         ...abstractMapStateToProps(state),
         _aspectRatio: aspectRatio,
-        _calendarEnabled: isCalendarEnabled(state),
         _connecting: Boolean(connecting_),
         _filmstripVisible: isFilmstripVisible(state),
         _largeVideoParticipantId: state['features/large-video'].participantId,

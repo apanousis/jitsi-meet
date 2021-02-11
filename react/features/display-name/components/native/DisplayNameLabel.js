@@ -4,10 +4,8 @@ import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 
 import {
-    getLocalParticipant,
     getParticipantById,
-    getParticipantDisplayName,
-    shouldRenderParticipantVideo
+    getParticipantDisplayName
 } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 
@@ -65,17 +63,13 @@ class DisplayNameLabel extends Component<Props> {
  */
 function _mapStateToProps(state: Object, ownProps: Props) {
     const { participantId } = ownProps;
-    const localParticipant = getLocalParticipant(state);
     const participant = getParticipantById(state, participantId);
     const isFakeParticipant = participant && participant.isFakeParticipant;
 
     // Currently we only render the display name if it's not the local
     // participant and there is no video rendered for
     // them.
-    const _render = Boolean(participantId)
-        && localParticipant?.id !== participantId
-        && !shouldRenderParticipantVideo(state, participantId)
-        && !isFakeParticipant;
+    const _render = Boolean(participantId) && !isFakeParticipant;
 
     return {
         _participantName:

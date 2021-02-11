@@ -13,7 +13,7 @@ import org.jitsi.meet.sdk.JitsiMeetActivity;
  * Helper class to initialize Google related services and functionality.
  * This functionality is compiled conditionally and called via reflection, that's why it was
  * extracted here.
- *
+ * <p>
  * "Libre builds" (builds with the LIBRE_BUILD flag set) will not include this file.
  */
 final class GoogleServicesHelper {

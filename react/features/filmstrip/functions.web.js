@@ -48,10 +48,6 @@ export function isFilmstripVisible(stateful: Object | Function) {
  * in the filmstrip, then {@code true}; otherwise, {@code false}.
  */
 export function shouldRemoteVideosBeVisible(state: Object) {
-    if (state['features/invite'].calleeInfoVisible) {
-        return false;
-    }
-
     // Include fake participants to derive how many thumbnails are dispalyed,
     // as it is assumed all participants, including fake, will be displayed
     // in the filmstrip.

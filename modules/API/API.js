@@ -2,40 +2,16 @@
 
 import Logger from 'jitsi-meet-logger';
 
-import {
-    createApiEvent,
-    sendAnalytics
-} from '../../react/features/analytics';
-import {
-    getCurrentConference,
-    sendTones,
-    setPassword,
-    setSubject
-} from '../../react/features/base/conference';
-import { parseJWTFromURLParams } from '../../react/features/base/jwt';
-import JitsiMeetJS, { JitsiRecordingConstants } from '../../react/features/base/lib-jitsi-meet';
-import { pinParticipant, getParticipantById } from '../../react/features/base/participants';
-import { setPrivateMessageRecipient } from '../../react/features/chat/actions';
-import {
-    processExternalDeviceRequest
-} from '../../react/features/device-selection/functions';
-import { isEnabled as isDropboxEnabled } from '../../react/features/dropbox';
-import { toggleE2EE } from '../../react/features/e2ee/actions';
-import { invite } from '../../react/features/invite';
-import {
-    captureLargeVideoScreenshot,
-    resizeLargeVideo,
-    selectParticipantInLargeVideo
-} from '../../react/features/large-video/actions';
-import { toggleLobbyMode } from '../../react/features/lobby/actions.web';
-import { RECORDING_TYPES } from '../../react/features/recording/constants';
-import { getActiveSession } from '../../react/features/recording/functions';
+import { createApiEvent, sendAnalytics } from '../../react/features/analytics';
+import { sendTones, setSubject } from '../../react/features/base/conference';
+import { processExternalDeviceRequest } from '../../react/features/device-selection/functions';
+import { resizeLargeVideo, selectParticipantInLargeVideo } from '../../react/features/large-video/actions';
 import { muteAllParticipants } from '../../react/features/remote-video-menu/actions';
 import { toggleTileView } from '../../react/features/video-layout';
 import { setVideoQuality } from '../../react/features/video-quality';
 import { getJitsiMeetTransport } from '../transport';
 
-import { API_ID, ENDPOINT_TEXT_MESSAGE_NAME } from './constants';
+import { API_ID } from './constants';
 
 const logger = Logger.getLogger(__filename);
 
@@ -91,28 +67,6 @@ function initCommands() {
         'toggle-lobby': isLobbyEnabled => {
             APP.store.dispatch(toggleLobbyMode(isLobbyEnabled));
         },
-        'password': password => {
-            const { conference, passwordRequired }
-                = APP.store.getState()['features/base/conference'];
-
-            if (passwordRequired) {
-                sendAnalytics(createApiEvent('submit.password'));
-
-                APP.store.dispatch(setPassword(
-                    passwordRequired,
-                    passwordRequired.join,
-                    password
-                ));
-            } else {
-                sendAnalytics(createApiEvent('password.changed'));
-
-                APP.store.dispatch(setPassword(
-                    conference,
-                    conference.lock,
-                    password
-                ));
-            }
-        },
         'pin-participant': id => {
             logger.debug('Pin participant command received');
             sendAnalytics(createApiEvent('participant.pinned'));
@@ -158,24 +112,6 @@ function initCommands() {
             sendAnalytics(createApiEvent('film.strip.toggled'));
             APP.UI.toggleFilmstrip();
         },
-        'toggle-chat': () => {
-            sendAnalytics(createApiEvent('chat.toggled'));
-            APP.UI.toggleChat();
-        },
-
-        /**
-         * Callback to invoke when the "toggle-share-screen" command is received.
-         *
-         * @param {Object} options - Additional details of how to perform
-         * the action. Note this parameter is undocumented and experimental.
-         * @param {boolean} options.enable - Whether trying to enable screen
-         * sharing or to turn it off.
-         * @returns {void}
-         */
-        'toggle-share-screen': (options = {}) => {
-            sendAnalytics(createApiEvent('screen.sharing.toggled'));
-            toggleScreenSharing(options.enable);
-        },
         'toggle-tile-view': () => {
             sendAnalytics(createApiEvent('tile-view.toggled'));
 
@@ -193,17 +129,6 @@ function initCommands() {
             sendAnalytics(createApiEvent('avatar.url.changed'));
             APP.conference.changeLocalAvatarUrl(avatarUrl);
         },
-        'send-endpoint-text-message': (to, text) => {
-            logger.debug('Send endpoint message command received');
-            try {
-                APP.conference.sendEndpointMessage(to, {
-                    name: ENDPOINT_TEXT_MESSAGE_NAME,
-                    text
-                });
-            } catch (err) {
-                logger.error('Failed sending endpoint text message', err);
-            }
-        },
         'toggle-e2ee': enabled => {
             logger.debug('Toggle E2EE key command received');
             APP.store.dispatch(toggleE2EE(enabled));
@@ -212,143 +137,6 @@ function initCommands() {
             logger.debug('Set video quality command received');
             sendAnalytics(createApiEvent('set.video.quality'));
             APP.store.dispatch(setVideoQuality(frameHeight));
-        },
-
-        /**
-         * Starts a file recording or streaming session depending on the passed on params.
-         * For RTMP streams, `rtmpStreamKey` must be passed on. `rtmpBroadcastID` is optional.
-         * For youtube streams, `youtubeStreamKey` must be passed on. `youtubeBroadcastID` is optional.
-         * For dropbox recording, recording `mode` should be `file` and a dropbox oauth2 token must be provided.
-         * For file recording, recording `mode` should be `file` and optionally `shouldShare` could be passed on.
-         * No other params should be passed.
-         *
-         * @param { string } arg.mode - Recording mode, either `file` or `stream`.
-         * @param { string } arg.dropboxToken - Dropbox oauth2 token.
-         * @param { string } arg.rtmpStreamKey - The RTMP stream key.
-         * @param { string } arg.rtmpBroadcastID - The RTMP braodcast ID.
-         * @param { boolean } arg.shouldShare - Whether the recording should be shared with the participants or not.
-         * Only applies to certain jitsi meet deploys.
-         * @param { string } arg.youtubeStreamKey - The youtube stream key.
-         * @param { string } arg.youtubeBroadcastID - The youtube broacast ID.
-         * @returns {void}
-         */
-        'start-recording': ({
-            mode,
-            dropboxToken,
-            shouldShare,
-            rtmpStreamKey,
-            rtmpBroadcastID,
-            youtubeStreamKey,
-            youtubeBroadcastID
-        }) => {
-            const state = APP.store.getState();
-            const conference = getCurrentConference(state);
-
-            if (!conference) {
-                logger.error('Conference is not defined');
-
-                return;
-            }
-
-            if (dropboxToken && !isDropboxEnabled(state)) {
-                logger.error('Failed starting recording: dropbox is not enabled on this deployment');
-
-                return;
-            }
-
-            if (mode === JitsiRecordingConstants.mode.STREAM && !(youtubeStreamKey || rtmpStreamKey)) {
-                logger.error('Failed starting recording: missing youtube or RTMP stream key');
-
-                return;
-            }
-
-            let recordingConfig;
-
-            if (mode === JitsiRecordingConstants.mode.FILE) {
-                if (dropboxToken) {
-                    recordingConfig = {
-                        mode: JitsiRecordingConstants.mode.FILE,
-                        appData: JSON.stringify({
-                            'file_recording_metadata': {
-                                'upload_credentials': {
-                                    'service_name': RECORDING_TYPES.DROPBOX,
-                                    'token': dropboxToken
-                                }
-                            }
-                        })
-                    };
-                } else {
-                    recordingConfig = {
-                        mode: JitsiRecordingConstants.mode.FILE,
-                        appData: JSON.stringify({
-                            'file_recording_metadata': {
-                                'share': shouldShare
-                            }
-                        })
-                    };
-                }
-            } else if (mode === JitsiRecordingConstants.mode.STREAM) {
-                recordingConfig = {
-                    broadcastId: youtubeBroadcastID || rtmpBroadcastID,
-                    mode: JitsiRecordingConstants.mode.STREAM,
-                    streamId: youtubeStreamKey || rtmpStreamKey
-                };
-            } else {
-                logger.error('Invalid recording mode provided');
-
-                return;
-            }
-
-            conference.startRecording(recordingConfig);
-        },
-
-        /**
-         * Stops a recording or streaming in progress.
-         *
-         * @param {string} mode - `file` or `stream`.
-         * @returns {void}
-         */
-        'stop-recording': mode => {
-            const state = APP.store.getState();
-            const conference = getCurrentConference(state);
-
-            if (!conference) {
-                logger.error('Conference is not defined');
-
-                return;
-            }
-
-            if (![ JitsiRecordingConstants.mode.FILE, JitsiRecordingConstants.mode.STREAM ].includes(mode)) {
-                logger.error('Invalid recording mode provided!');
-
-                return;
-            }
-
-            const activeSession = getActiveSession(state, mode);
-
-            if (activeSession && activeSession.id) {
-                conference.stopRecording(activeSession.id);
-            } else {
-                logger.error('No recording or streaming session found');
-            }
-        },
-        'initiate-private-chat': participantId => {
-            const state = APP.store.getState();
-            const participant = getParticipantById(state, participantId);
-
-            if (participant) {
-                const { isOpen: isChatOpen } = state['features/chat'];
-
-                if (!isChatOpen) {
-                    APP.UI.toggleChat();
-                }
-                APP.store.dispatch(setPrivateMessageRecipient(participant));
-            } else {
-                logger.error('No participant found for the given participantId');
-            }
-        },
-        'cancel-private-chat': () => {
-            APP.store.dispatch(setPrivateMessageRecipient());
         }
     };
     transport.on('event', ({ data, name }) => {
@@ -370,53 +158,6 @@ function initCommands() {
         const { name } = request;
 
         switch (name) {
-        case 'capture-largevideo-screenshot' :
-            APP.store.dispatch(captureLargeVideoScreenshot())
-                .then(dataURL => {
-                    let error;
-
-                    if (!dataURL) {
-                        error = new Error('No large video found!');
-                    }
-
-                    callback({
-                        error,
-                        dataURL
-                    });
-                });
-            break;
-        case 'invite': {
-            const { invitees } = request;
-
-            if (!Array.isArray(invitees) || invitees.length === 0) {
-                callback({
-                    error: new Error('Unexpected format of invitees')
-                });
-
-                break;
-            }
-
-            // The store should be already available because API.init is called
-            // on appWillMount action.
-            APP.store.dispatch(
-                invite(invitees, true))
-                .then(failedInvitees => {
-                    let error;
-                    let result;
-
-                    if (failedInvitees.length) {
-                        error = new Error('One or more invites failed!');
-                    } else {
-                        result = true;
-                    }
-
-                    callback({
-                        error,
-                        result
-                    });
-                });
-            break;
-        }
         case 'is-audio-muted':
             callback(APP.conference.isLocalAudioMuted());
             break;
@@ -432,15 +173,6 @@ function initCommands() {
         case 'is-sharing-screen':
             callback(Boolean(APP.conference.isSharingScreen));
             break;
-        case 'get-content-sharing-participants': {
-            const tracks = getState()['features/base/tracks'];
-            const sharingParticipantIds = tracks.filter(tr => tr.videoType === 'desktop').map(t => t.participantId);
-
-            callback({
-                sharingParticipantIds
-            });
-            break;
-        }
         default:
             return false;
         }
@@ -456,31 +188,7 @@ function initCommands() {
  */
 function shouldBeEnabled() {
     return (
-        typeof API_ID === 'number'
-
-            // XXX Enable the API when a JSON Web Token (JWT) is specified in
-            // the location/URL because then it is very likely that the Jitsi
-            // Meet (Web) app is being used by an external/wrapping (Web) app
-            // and, consequently, the latter will need to communicate with the
-            // former. (The described logic is merely a heuristic though.)
-            || parseJWTFromURLParams());
-}
-
-/**
- * Executes on toggle-share-screen command.
- *
- * @param {boolean} [enable] - Whether this toggle is to explicitly enable or
- * disable screensharing. If not defined, the application will automatically
- * attempt to toggle between enabled and disabled. This boolean is useful for
- * explicitly setting desired screensharing state.
- * @returns {void}
- */
-function toggleScreenSharing(enable) {
-    if (JitsiMeetJS.isDesktopSharingEnabled()) {
-        APP.conference.toggleScreenSharing(enable).catch(() => {
-            logger.warn('Failed to toggle screen-sharing');
-        });
-    }
+        typeof API_ID === 'number');
 }
 
 /**
@@ -557,36 +265,6 @@ class API {
     }
 
     /**
-     * Notify external application (if API is enabled) that the chat state has been updated.
-     *
-     * @param {number} unreadCount - The unread messages counter.
-     * @param {boolean} isOpen - True if the chat panel is open.
-     * @returns {void}
-     */
-    notifyChatUpdated(unreadCount: number, isOpen: boolean) {
-        this._sendEvent({
-            name: 'chat-updated',
-            unreadCount,
-            isOpen
-        });
-    }
-
-    /**
-     * Notify external application (if API is enabled) that message was sent.
-     *
-     * @param {string} message - Message body.
-     * @param {boolean} privateMessage - True if the message was a private message.
-     * @returns {void}
-     */
-    notifySendingChatMessage(message: string, privateMessage: boolean) {
-        this._sendEvent({
-            name: 'outgoing-message',
-            message,
-            privateMessage
-        });
-    }
-
-    /**
      * Notify external application that the video quality setting has changed.
      *
      * @param {number} videoQuality - The video quality. The number represents the maximum height of the video streams.
@@ -596,31 +274,6 @@ class API {
         this._sendEvent({
             name: 'video-quality-changed',
             videoQuality
-        });
-    }
-
-    /**
-     * Notify external application (if API is enabled) that message was
-     * received.
-     *
-     * @param {Object} options - Object with the message properties.
-     * @returns {void}
-     */
-    notifyReceivedChatMessage(
-            { body, id, nick, privateMessage, ts }: {
-                body: *, id: string, nick: string, privateMessage: boolean, ts: *
-            } = {}) {
-        if (APP.conference.isLocalId(id)) {
-            return;
-        }
-
-        this._sendEvent({
-            name: 'incoming-message',
-            from: id,
-            message: body,
-            nick,
-            privateMessage,
-            stamp: ts
         });
     }
 

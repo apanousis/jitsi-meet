@@ -19,8 +19,14 @@ import {
  * Listens for changes in the number of participants to calculate the dimensions of the tile view grid and the tiles.
  */
 StateListenerRegistry.register(
-    /* selector */ state => state['features/base/participants'].length,
-    /* listener */ (numberOfParticipants, store) => {
+    /* selector */ state => state['features/base/participants'],
+    /* listener */ (participants, store) => {
+
+        // all emails must have been updated prior to calculating the size
+        if (participants.filter(p => !p.email).length > 0) {
+            return;
+        }
+
         const state = store.getState();
 
         if (shouldDisplayTileView(state)) {
@@ -96,39 +102,6 @@ StateListenerRegistry.register(
         }
     }
 );
-
-/**
- * Listens for changes in the chat state to calculate the dimensions of the tile view grid and the tiles.
- */
-StateListenerRegistry.register(
-    /* selector */ state => state['features/chat'].isOpen,
-    /* listener */ (isChatOpen, store) => {
-        const state = store.getState();
-
-        if (isChatOpen) {
-            // $FlowFixMe
-            document.body.classList.add('shift-right');
-        } else {
-            // $FlowFixMe
-            document.body.classList.remove('shift-right');
-        }
-
-        if (shouldDisplayTileView(state)) {
-            const gridDimensions = getTileViewGridDimensions(state);
-            const { clientHeight, clientWidth } = state['features/base/responsive-ui'];
-
-            store.dispatch(
-                setTileViewDimensions(
-                    gridDimensions,
-                    {
-                        clientHeight,
-                        clientWidth
-                    },
-                    store
-                )
-            );
-        }
-    });
 
 /**
  * Listens for changes in the client width to determine whether the overflow menu(s) should be displayed as drawers.

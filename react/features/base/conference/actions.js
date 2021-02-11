@@ -7,7 +7,6 @@ import {
     sendAnalytics
 } from '../../analytics';
 import { getName } from '../../app/functions';
-import { endpointMessageReceived } from '../../subtitles';
 import { JITSI_CONNECTION_CONFERENCE_KEY } from '../connection';
 import { JitsiConferenceEvents } from '../lib-jitsi-meet';
 import { setAudioMuted, setVideoMuted } from '../media';
@@ -30,7 +29,6 @@ import {
 } from '../util';
 
 import {
-    AUTH_STATUS_CHANGED,
     CONFERENCE_FAILED,
     CONFERENCE_JOINED,
     CONFERENCE_LEFT,
@@ -41,12 +39,9 @@ import {
     CONFERENCE_WILL_LEAVE,
     DATA_CHANNEL_OPENED,
     KICKED_OUT,
-    LOCK_STATE_CHANGED,
     P2P_STATUS_CHANGED,
     SEND_TONES,
     SET_FOLLOW_ME,
-    SET_PASSWORD,
-    SET_PASSWORD_FAILED,
     SET_ROOM,
     SET_PENDING_SUBJECT_CHANGE,
     SET_START_MUTED_POLICY
@@ -110,12 +105,6 @@ function _addConferenceListeners(conference, dispatch) {
         (kicker, kicked) => dispatch(participantKicked(kicker, kicked)));
 
     conference.on(
-        JitsiConferenceEvents.LOCK_STATE_CHANGED,
-        (...args) => dispatch(lockStateChanged(conference, ...args)));
-
-    // Dispatches into features/base/media follow:
-
-    conference.on(
         JitsiConferenceEvents.STARTED_MUTED,
         () => {
             const audioMuted = Boolean(conference.startAudioMuted);
@@ -169,10 +158,6 @@ function _addConferenceListeners(conference, dispatch) {
         id => dispatch(dominantSpeakerChanged(id, conference)));
 
     conference.on(
-        JitsiConferenceEvents.ENDPOINT_MESSAGE_RECEIVED,
-        (...args) => dispatch(endpointMessageReceived(...args)));
-
-    conference.on(
         JitsiConferenceEvents.PARTICIPANT_CONN_STATUS_CHANGED,
         (...args) => dispatch(participantConnectionStatusChanged(...args)));
 
@@ -209,28 +194,9 @@ function _addConferenceListeners(conference, dispatch) {
         (data, id) => dispatch(participantUpdated({
             conference,
             id,
+            emailOnly: true,
             email: data.value
         })));
-}
-
-/**
- * Updates the current known state of server-side authentication.
- *
- * @param {boolean} authEnabled - Whether or not server authentication is
- * enabled.
- * @param {string} authLogin - The current name of the logged in user, if any.
- * @returns {{
- *     type: AUTH_STATUS_CHANGED,
- *     authEnabled: boolean,
- *     authLogin: string
- * }}
- */
-export function authStatusChanged(authEnabled: boolean, authLogin: string) {
-    return {
-        type: AUTH_STATUS_CHANGED,
-        authEnabled,
-        authLogin
-    };
 }
 
 /**
@@ -426,7 +392,6 @@ export function createConference() {
         }
 
         const config = state['features/base/config'];
-        const { tenant } = state['features/base/jwt'];
         const { email, name: nick } = getLocalParticipant(state);
 
         const conference
@@ -437,7 +402,6 @@ export function createConference() {
                     applicationName: getName(),
                     getWiFiStatsMethod: getJitsiMeetGlobalNS().getWiFiStats,
                     confID: `${locationURL.host}${getBackendSafePath(locationURL.pathname)}`,
-                    siteID: tenant,
                     statisticsDisplayName: config.enableDisplayNameInStats ? nick : undefined,
                     statisticsId: config.enableEmailInStats ? email : undefined
                 });
@@ -505,27 +469,6 @@ export function kickedOut(conference: Object, participant: Object) {
         type: KICKED_OUT,
         conference,
         participant
-    };
-}
-
-/**
- * Signals that the lock state of a specific JitsiConference changed.
- *
- * @param {JitsiConference} conference - The JitsiConference which had its lock
- * state changed.
- * @param {boolean} locked - If the specified conference became locked, true;
- * otherwise, false.
- * @returns {{
- *     type: LOCK_STATE_CHANGED,
- *     conference: JitsiConference,
- *     locked: boolean
- * }}
- */
-export function lockStateChanged(conference: Object, locked: boolean) {
-    return {
-        type: LOCK_STATE_CHANGED,
-        conference,
-        locked
     };
 }
 
@@ -602,72 +545,6 @@ export function setFollowMe(enabled: boolean) {
     return {
         type: SET_FOLLOW_ME,
         enabled
-    };
-}
-
-/**
- * Sets the password to join or lock a specific JitsiConference.
- *
- * @param {JitsiConference} conference - The JitsiConference which requires a
- * password to join or is to be locked with the specified password.
- * @param {Function} method - The JitsiConference method of password protection
- * such as join or lock.
- * @param {string} password - The password with which the specified conference
- * is to be joined or locked.
- * @returns {Function}
- */
-export function setPassword(
-        conference: Object,
-        method: Function,
-        password: string) {
-    return (dispatch: Dispatch<any>, getState: Function): ?Promise<void> => {
-        switch (method) {
-        case conference.join: {
-            let state = getState()['features/base/conference'];
-
-            dispatch({
-                type: SET_PASSWORD,
-                conference,
-                method,
-                password
-            });
-
-            // Join the conference with the newly-set password.
-
-            // Make sure that the action did set the password.
-            state = getState()['features/base/conference'];
-            if (state.password === password
-
-                    // Make sure that the application still wants the
-                    // conference joined.
-                    && !state.conference) {
-                method.call(conference, password);
-            }
-            break;
-        }
-
-        case conference.lock: {
-            const state = getState()['features/base/conference'];
-
-            if (state.conference === conference) {
-                return (
-                    method.call(conference, password)
-                        .then(() => dispatch({
-                            type: SET_PASSWORD,
-                            conference,
-                            method,
-                            password
-                        }))
-                        .catch(error => dispatch({
-                            type: SET_PASSWORD_FAILED,
-                            error
-                        }))
-                );
-            }
-
-            return Promise.reject();
-        }
-        }
     };
 }
 

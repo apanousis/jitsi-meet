@@ -3,8 +3,6 @@
 import UIEvents from '../../../../service/UI/UIEvents';
 import { processExternalDeviceRequest } from '../../device-selection';
 import { showNotification, showWarningNotification } from '../../notifications';
-import { replaceAudioTrackById, replaceVideoTrackById, setDeviceStatusWarning } from '../../prejoin/actions';
-import { isPrejoinPageVisible } from '../../prejoin/functions';
 import { APP_WILL_MOUNT, APP_WILL_UNMOUNT } from '../app';
 import JitsiMeetJS, { JitsiMediaDevicesEvents, JitsiTrackErrors } from '../lib-jitsi-meet';
 import { MiddlewareRegistry } from '../redux';
@@ -135,10 +133,6 @@ MiddlewareRegistry.register(store => next => action => {
             titleKey
         }));
 
-        if (isPrejoinPageVisible(store.getState())) {
-            store.dispatch(setDeviceStatusWarning(titleKey));
-        }
-
         break;
     }
     case NOTIFY_MIC_ERROR: {
@@ -164,25 +158,13 @@ MiddlewareRegistry.register(store => next => action => {
             titleKey
         }));
 
-        if (isPrejoinPageVisible(store.getState())) {
-            store.dispatch(setDeviceStatusWarning(titleKey));
-        }
-
         break;
     }
     case SET_AUDIO_INPUT_DEVICE:
-        if (isPrejoinPageVisible(store.getState())) {
-            store.dispatch(replaceAudioTrackById(action.deviceId));
-        } else {
-            APP.UI.emitEvent(UIEvents.AUDIO_DEVICE_CHANGED, action.deviceId);
-        }
+        APP.UI.emitEvent(UIEvents.AUDIO_DEVICE_CHANGED, action.deviceId);
         break;
     case SET_VIDEO_INPUT_DEVICE:
-        if (isPrejoinPageVisible(store.getState())) {
-            store.dispatch(replaceVideoTrackById(action.deviceId));
-        } else {
-            APP.UI.emitEvent(UIEvents.VIDEO_DEVICE_CHANGED, action.deviceId);
-        }
+        APP.UI.emitEvent(UIEvents.VIDEO_DEVICE_CHANGED, action.deviceId);
         break;
     case UPDATE_DEVICE_LIST:
         logDeviceList(groupDevicesByKind(action.devices));

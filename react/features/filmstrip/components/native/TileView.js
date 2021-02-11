@@ -8,6 +8,9 @@ import {
 } from 'react-native';
 import type { Dispatch } from 'redux';
 
+import {
+    isParticipantModerator
+} from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
 import { setTileViewDimensions } from '../../actions.native';
@@ -131,7 +134,7 @@ class TileView extends Component<Props> {
      * @private
      */
     _getColumnCount() {
-        const participantCount = this.props._participants.length;
+        const participantCount = this._getSortedParticipants().length;
 
         // For narrow view, tiles should stack on top of each other for a lonely
         // call and a 1:1 call. Otherwise tiles should be grouped into rows of
@@ -156,13 +159,15 @@ class TileView extends Component<Props> {
      */
     _getSortedParticipants() {
         const participants = [];
-        let localParticipant;
+
+        const localParticipant = this.props._participants.find(p => p.local);
+        const isLocalParticipantModerator = isParticipantModerator(localParticipant);
 
         for (const participant of this.props._participants) {
-            if (participant.local) {
-                localParticipant = participant;
-            } else {
-                participants.push(participant);
+            if (!participant.local) {
+                if (isParticipantModerator(participant) || isLocalParticipantModerator) {
+                    participants.push(participant);
+                }
             }
         }
 
@@ -178,9 +183,9 @@ class TileView extends Component<Props> {
      * @returns {Object}
      */
     _getTileDimensions() {
-        const { _height, _participants, _width } = this.props;
+        const { _height, _width } = this.props;
         const columns = this._getColumnCount();
-        const participantCount = _participants.length;
+        const participantCount = this._getSortedParticipants().length;
         const heightToUse = _height - (MARGIN * 2);
         const widthToUse = _width - (MARGIN * 2);
         let tileWidth;

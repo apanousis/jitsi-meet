@@ -10,10 +10,7 @@ import { Conference } from '../conference';
 import { getDeepLinkingPage } from '../deep-linking';
 import { UnsupportedDesktopBrowser } from '../unsupported-browser';
 import {
-    BlankPage,
-    WelcomePage,
-    isWelcomePageAppEnabled,
-    isWelcomePageUserEnabled
+    BlankPage
 } from '../welcome';
 
 /**
@@ -58,8 +55,6 @@ function _getMobileRoute(state): Promise<Route> {
 
     if (isRoomValid(state['features/base/conference'].room)) {
         route.component = Conference;
-    } else if (isWelcomePageAppEnabled(state)) {
-        route.component = WelcomePage;
     } else {
         route.component = BlankPage;
     }
@@ -113,23 +108,14 @@ function _getWebConferenceRoute(state): ?Promise<Route> {
  * @param {Object} state - The redux state.
  * @returns {Promise<Route>}
  */
-function _getWebWelcomePageRoute(state): Promise<Route> {
+function _getWebWelcomePageRoute(): Promise<Route> {
     const route = _getEmptyRoute();
 
-    if (isWelcomePageUserEnabled(state)) {
-        if (isSupportedBrowser()) {
-            route.component = WelcomePage;
-        } else {
-            route.component = UnsupportedDesktopBrowser;
-        }
-    } else {
-        // Web: if the welcome page is disabled, go directly to a random room.
+    let href = window.location.href;
 
-        let href = window.location.href;
+    href.endsWith('/') || (href += '/');
 
-        href.endsWith('/') || (href += '/');
-        route.href = href + generateRoomWithoutSeparator();
-    }
+    route.href = href + generateRoomWithoutSeparator();
 
     return Promise.resolve(route);
 }

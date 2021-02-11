@@ -14,12 +14,12 @@ import { VIDEO_MUTISM_AUTHORITY } from './constants';
 const START_WITH_AUDIO_VIDEO_MUTED_SOURCES = {
     // We have startWithAudioMuted and startWithVideoMuted here:
     config: true,
-    settings: true,
+    settings: false,
 
     // XXX We've already overwritten base/config with urlParams. However,
     // settings are more important than the server-side config.
     // Consequently, we need to read from urlParams anyway:
-    urlParams: true,
+    urlParams: false,
 
     // We don't have startWithAudioMuted and startWithVideoMuted here:
     jwt: false

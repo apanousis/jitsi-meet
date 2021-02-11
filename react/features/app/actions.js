@@ -24,7 +24,6 @@ import {
     parseURIString,
     toURLString
 } from '../base/util';
-import { isVpaasMeeting } from '../billing-counter/functions';
 import { clearNotifications, showNotification } from '../notifications';
 import { setFatalError } from '../overlay';
 

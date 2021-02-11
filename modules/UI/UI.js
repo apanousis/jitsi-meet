@@ -7,7 +7,6 @@ import EventEmitter from 'events';
 import Logger from 'jitsi-meet-logger';
 
 import { isMobileBrowser } from '../../react/features/base/environment/utils';
-import { toggleChat } from '../../react/features/chat';
 import { setDocumentUrl } from '../../react/features/etherpad';
 import { setFilmstripVisible } from '../../react/features/filmstrip';
 import { joinLeaveNotificationsDisabled, setNotificationsEnabled } from '../../react/features/notifications';
@@ -19,7 +18,6 @@ import {
 import UIEvents from '../../service/UI/UIEvents';
 
 import EtherpadManager from './etherpad/Etherpad';
-import SharedVideoManager from './shared_video/SharedVideo';
 import messageHandler from './util/MessageHandler';
 import UIUtil from './util/UIUtil';
 import VideoLayout from './videolayout/VideoLayout';
@@ -33,15 +31,11 @@ const eventEmitter = new EventEmitter();
 UI.eventEmitter = eventEmitter;
 
 let etherpadManager;
-let sharedVideoManager;
 
 const UIListeners = new Map([
     [
         UIEvents.ETHERPAD_CLICKED,
         () => etherpadManager && etherpadManager.toggleEtherpad()
-    ], [
-        UIEvents.SHARED_VIDEO_CLICKED,
-        () => sharedVideoManager && sharedVideoManager.toggleSharedVideo()
     ], [
         UIEvents.TOGGLE_FILMSTRIP,
         () => UI.toggleFilmstrip()
@@ -59,11 +53,11 @@ UI.isFullScreen = function() {
 };
 
 /**
- * Returns true if there is a shared video which is being shown (?).
- * @returns {boolean} - true if there is a shared video which is being shown.
+ * Returns true if the etherpad window is currently visible.
+ * @returns {Boolean} - true if the etherpad window is currently visible.
  */
-UI.isSharedVideoShown = function() {
-    return Boolean(sharedVideoManager && sharedVideoManager.isSharedVideoShown);
+UI.isEtherpadVisible = function() {
+    return Boolean(etherpadManager && etherpadManager.isVisible());
 };
 
 /**
@@ -98,14 +92,6 @@ UI.initConference = function() {
 };
 
 /**
- * Returns the shared document manager object.
- * @return {EtherpadManager} the shared document manager object
- */
-UI.getSharedVideoManager = function() {
-    return sharedVideoManager;
-};
-
-/**
  * Starts the UI module and initializes all related components.
  *
  * @returns {boolean} true if the UI is ready and the conference should be
@@ -123,8 +109,6 @@ UI.start = function() {
     // the current dom layout, the quality label is part of the video layout and
     // will be seen animating in.
     VideoLayout.resizeVideoArea();
-
-    sharedVideoManager = new SharedVideoManager(eventEmitter);
 
     if (isMobileBrowser()) {
         $('body').addClass('mobile-browser');
@@ -202,17 +186,7 @@ UI.initEtherpad = name => {
     const url = new URL(name, config.etherpad_base);
 
     APP.store.dispatch(setDocumentUrl(url.toString()));
-
-    if (config.openSharedDocumentOnJoin) {
-        etherpadManager.toggleEtherpad();
-    }
 };
-
-/**
- * Returns the shared document manager object.
- * @return {EtherpadManager} the shared document manager object
- */
-UI.getSharedDocumentManager = () => etherpadManager;
 
 /**
  * Show user on UI.
@@ -242,12 +216,10 @@ UI.onPeerVideoTypeChanged
  * @param {string} status - The new status.
  */
 UI.updateUserStatus = (user, status) => {
-    const reduxState = APP.store.getState() || {};
-    const { calleeInfoVisible } = reduxState['features/invite'] || {};
 
     // We hide status updates when join/leave notifications are disabled,
     // as jigasi is the component with statuses and they are seen as join/leave notifications.
-    if (!status || calleeInfoVisible || joinLeaveNotificationsDisabled()) {
+    if (!status || joinLeaveNotificationsDisabled()) {
         return;
     }
 
@@ -270,10 +242,6 @@ UI.toggleFilmstrip = function() {
     APP.store.dispatch(setFilmstripVisible(!visible));
 };
 
-/**
- * Toggles the visibility of the chat panel.
- */
-UI.toggleChat = () => APP.store.dispatch(toggleChat());
 
 /**
  * Sets muted audio state for participant
@@ -457,38 +425,35 @@ UI.getLargeVideo = function() {
 };
 
 /**
- * Show shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
-*/
-UI.onSharedVideoStart = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStart(id, url, attributes);
-    }
+ * Handles user's features changes.
+ */
+UI.onUserFeaturesChanged = user => VideoLayout.onUserFeaturesChanged(user);
+
+/**
+ * Returns the number of known remote videos.
+ *
+ * @returns {number} The number of remote videos.
+ */
+UI.getRemoteVideosCount = () => VideoLayout.getRemoteVideosCount();
+
+/**
+ * Sets the remote control active status for a remote participant.
+ *
+ * @param {string} participantID - The id of the remote participant.
+ * @param {boolean} isActive - The new remote control active status.
+ * @returns {void}
+ */
+UI.setRemoteControlActiveStatus = function(participantID, isActive) {
+    VideoLayout.setRemoteControlActiveStatus(participantID, isActive);
 };
 
 /**
- * Update shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} url video url
- * @param {string} attributes
+ * Sets the remote control active status for the local participant.
+ *
+ * @returns {void}
  */
-UI.onSharedVideoUpdate = function(id, url, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoUpdate(id, url, attributes);
-    }
-};
-
-/**
- * Stop showing shared video.
- * @param {string} id the id of the sender of the command
- * @param {string} attributes
- */
-UI.onSharedVideoStop = function(id, attributes) {
-    if (sharedVideoManager) {
-        sharedVideoManager.onSharedVideoStop(id, attributes);
-    }
+UI.setLocalRemoteControlActiveChanged = function() {
+    VideoLayout.setLocalRemoteControlActiveChanged();
 };
 
 // TODO: Export every function separately. For now there is no point of doing

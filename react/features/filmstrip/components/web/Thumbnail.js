@@ -19,7 +19,6 @@ import { ConnectionIndicator } from '../../../connection-indicator';
 import { DisplayName } from '../../../display-name';
 import { StatusIndicators, RaisedHandIndicator, DominantSpeakerIndicator } from '../../../filmstrip';
 import { PresenceLabel } from '../../../presence-status';
-import { RemoteVideoMenuTriggerButton } from '../../../remote-video-menu';
 import { getCurrentLayout, LAYOUTS } from '../../../video-layout';
 
 const JitsiTrackEvents = JitsiMeetJS.events.track;
@@ -486,14 +485,6 @@ class Thumbnail extends Component<Props, State> {
                         className = 'presence-label'
                         participantID = { id } />
                 </div>
-                <span className = 'remotevideomenu'>
-                    <AtlasKitThemeProvider mode = 'dark'>
-                        <RemoteVideoMenuTriggerButton
-                            initialVolumeValue = { volume }
-                            onVolumeChange = { onVolumeChange }
-                            participantID = { id } />
-                    </AtlasKitThemeProvider>
-                </span>
                 <span className = 'audioindicator-container'>
                     <AudioLevelIndicator audioLevel = { audioLevel } />
                 </span>

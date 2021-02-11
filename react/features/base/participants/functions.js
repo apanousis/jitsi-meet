@@ -1,80 +1,14 @@
 // @flow
 
-import { getGravatarURL } from '@jitsi/js-utils/avatar';
-import type { Store } from 'redux';
-
 import { JitsiParticipantConnectionStatus } from '../lib-jitsi-meet';
 import { MEDIA_TYPE, shouldRenderVideoTrack } from '../media';
 import { toState } from '../redux';
 import { getTrackByMediaTypeAndParticipant } from '../tracks';
-import { createDeferred } from '../util';
 
-import {
-    JIGASI_PARTICIPANT_ICON,
-    MAX_DISPLAY_NAME_LENGTH,
-    PARTICIPANT_ROLE
-} from './constants';
-import { preloadImage } from './preloadImage';
+import { MAX_DISPLAY_NAME_LENGTH } from './constants';
 
 declare var interfaceConfig: Object;
 
-/**
- * Temp structures for avatar urls to be checked/preloaded.
- */
-const AVATAR_QUEUE = [];
-const AVATAR_CHECKED_URLS = new Map();
-/* eslint-disable arrow-body-style, no-unused-vars */
-const AVATAR_CHECKER_FUNCTIONS = [
-    (participant, _) => {
-        return participant && participant.isJigasi ? JIGASI_PARTICIPANT_ICON : null;
-    },
-    (participant, _) => {
-        return participant && participant.avatarURL ? participant.avatarURL : null;
-    },
-    (participant, store) => {
-        if (participant && participant.email) {
-            // TODO: remove once libravatar has deployed their new scaled up infra. -saghul
-            const gravatarBaseURL
-                = store.getState()['features/base/config'].gravatarBaseURL ?? 'https://www.gravatar.com/avatar/';
-
-            return getGravatarURL(participant.email, gravatarBaseURL);
-        }
-
-        return null;
-    }
-];
-/* eslint-enable arrow-body-style, no-unused-vars */
-
-/**
- * Resolves the first loadable avatar URL for a participant.
- *
- * @param {Object} participant - The participant to resolve avatars for.
- * @param {Store} store - Redux store.
- * @returns {Promise}
- */
-export function getFirstLoadableAvatarUrl(participant: Object, store: Store<any, any>) {
-    const deferred = createDeferred();
-    const fullPromise = deferred.promise
-        .then(() => _getFirstLoadableAvatarUrl(participant, store))
-        .then(src => {
-
-            if (AVATAR_QUEUE.length) {
-                const next = AVATAR_QUEUE.shift();
-
-                next.resolve();
-            }
-
-            return src;
-        });
-
-    if (AVATAR_QUEUE.length) {
-        AVATAR_QUEUE.push(deferred);
-    } else {
-        deferred.resolve();
-    }
-
-    return fullPromise;
-}
 
 /**
  * Returns local participant from Redux state.
@@ -275,7 +209,7 @@ export function getYoutubeParticipant(stateful: Object | Function) {
  * @returns {boolean}
  */
 export function isParticipantModerator(participant: Object) {
-    return participant?.role === PARTICIPANT_ROLE.MODERATOR;
+    return participant.email && participant.email?.endsWith('-true');
 }
 
 /**
@@ -309,15 +243,18 @@ export function isIconUrl(icon: ?string | ?Object) {
  * to the Redux state.
  * @returns {boolean}
  */
-export function isLocalParticipantModerator(stateful: Object | Function) {
+export function isLocalParticipantModerator(
+        stateful: Object | Function) {
+
     const state = toState(stateful);
+
     const localParticipant = getLocalParticipant(state);
 
-    if (!localParticipant) {
+    if (!localParticipant || !localParticipant.email) {
         return false;
     }
 
-    return localParticipant.role === PARTICIPANT_ROLE.MODERATOR;
+    return isParticipantModerator(localParticipant);
 }
 
 /**
@@ -368,35 +305,5 @@ export function shouldRenderParticipantVideo(stateful: Object | Function, id: st
     return participantIsInLargeVideoWithScreen;
 }
 
-/**
- * Resolves the first loadable avatar URL for a participant.
- *
- * @param {Object} participant - The participant to resolve avatars for.
- * @param {Store} store - Redux store.
- * @returns {?string}
- */
-async function _getFirstLoadableAvatarUrl(participant, store) {
-    for (let i = 0; i < AVATAR_CHECKER_FUNCTIONS.length; i++) {
-        const url = AVATAR_CHECKER_FUNCTIONS[i](participant, store);
-
-        if (url) {
-            if (AVATAR_CHECKED_URLS.has(url)) {
-                if (AVATAR_CHECKED_URLS.get(url)) {
-                    return url;
-                }
-            } else {
-                try {
-                    const finalUrl = await preloadImage(url);
-
-                    AVATAR_CHECKED_URLS.set(finalUrl, true);
-
-                    return finalUrl;
-                } catch (e) {
-                    AVATAR_CHECKED_URLS.set(url, false);
-                }
-            }
-        }
-    }
-
-    return undefined;
-}
+export const participantCanBeSeen = (state, participant) => !participant.local
+    && (isLocalParticipantModerator(state) || isParticipantModerator(participant));

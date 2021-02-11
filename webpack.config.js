@@ -198,25 +198,7 @@ module.exports = [
     }),
     Object.assign({}, config, {
         entry: {
-            'alwaysontop': './react/features/always-on-top/index.js'
-        },
-        performance: getPerformanceHints(400 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
-            'dial_in_info_bundle': './react/features/invite/components/dial-in-info-page'
-        },
-        performance: getPerformanceHints(500 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
             'do_external_connect': './connection_optimization/do_external_connect.js'
-        },
-        performance: getPerformanceHints(5 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
-            'flacEncodeWorker': './react/features/local-recording/recording/flac/flacEncodeWorker.js'
         },
         performance: getPerformanceHints(5 * 1024)
     }),

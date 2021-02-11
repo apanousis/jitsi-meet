@@ -1,7 +1,6 @@
 /* global $, APP, config */
 
 /* eslint-disable no-unused-vars */
-import { AtlasKitThemeProvider } from '@atlaskit/theme';
 import Logger from 'jitsi-meet-logger';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -9,16 +8,9 @@ import { I18nextProvider } from 'react-i18next';
 import { Provider } from 'react-redux';
 
 import { i18next } from '../../../react/features/base/i18n';
-import {
-    JitsiParticipantConnectionStatus
-} from '../../../react/features/base/lib-jitsi-meet';
-import { getParticipantById } from '../../../react/features/base/participants';
 import { isTestModeEnabled } from '../../../react/features/base/testing';
 import { updateLastTrackVideoMediaEvent } from '../../../react/features/base/tracks';
-import { Thumbnail, isVideoPlayable } from '../../../react/features/filmstrip';
-import { PresenceLabel } from '../../../react/features/presence-status';
-import { stopController, requestRemoteControl } from '../../../react/features/remote-control';
-import { RemoteVideoMenuTriggerButton } from '../../../react/features/remote-video-menu';
+import { isVideoPlayable, Thumbnail } from '../../../react/features/filmstrip';
 /* eslint-enable no-unused-vars */
 import UIUtils from '../util/UIUtil';
 

@@ -9,7 +9,11 @@ import {
     PARTICIPANT_LEFT,
     PARTICIPANT_UPDATED,
     PIN_PARTICIPANT,
-    getParticipantById
+    getParticipantById,
+    isLocalParticipantModerator,
+    isParticipantModerator,
+    getParticipants,
+    participantCanBeSeen
 } from '../base/participants';
 import { MiddlewareRegistry } from '../base/redux';
 import { TRACK_ADDED, TRACK_REMOVED } from '../base/tracks';
@@ -39,10 +43,14 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case PARTICIPANT_JOINED:
-        if (!action.participant.local) {
-            VideoLayout.addRemoteParticipantContainer(
-                getParticipantById(store.getState(), action.participant.id));
+        // eslint-disable-next-line no-case-declarations
+        const participant = getParticipantById(store.getState(), action.participant.id);
+
+        if (!action.participant.local && (isLocalParticipantModerator(store.getState())
+            || isParticipantModerator(participant))) {
+            VideoLayout.addRemoteParticipantContainer(participant);
         }
+
         break;
 
     case PARTICIPANT_LEFT:
@@ -50,9 +58,27 @@ MiddlewareRegistry.register(store => next => action => {
         break;
 
     case PARTICIPANT_UPDATED: {
-        // Look for actions that triggered a change to connectionStatus. This is
-        // done instead of changing the connection status change action to be
-        // explicit in order to minimize changes to other code.
+
+        if (action.participant.email && action.participant.id) {
+            if (action.participant.onlyEmail) {
+                if (participantCanBeSeen(store.getState(), action.participant)) {
+
+                    // In case of reconnection remove old window
+                    const limboParticipant = getParticipants(store.getState())
+                        .find(p => p.email === action.participant.email
+                            && p.id !== action.participant.id);
+
+                    if (limboParticipant) {
+                        VideoLayout.removeParticipantContainer(limboParticipant.id);
+                    }
+
+                    VideoLayout.addRemoteParticipantContainer(action.participant);
+                } else {
+                    VideoLayout.removeParticipantContainer(action.participant.id);
+                }
+            }
+        }
+
         if (typeof action.participant.connectionStatus !== 'undefined') {
             VideoLayout.onParticipantConnectionStatusChanged(
                 action.participant.id,

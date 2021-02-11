@@ -1,12 +1,10 @@
 // @flow
 
-import { LOCKED_LOCALLY, LOCKED_REMOTELY } from '../../room-lock';
 import { CONNECTION_WILL_CONNECT, SET_LOCATION_URL } from '../connection';
 import { JitsiConferenceErrors } from '../lib-jitsi-meet';
 import { assign, ReducerRegistry, set } from '../redux';
 
 import {
-    AUTH_STATUS_CHANGED,
     CONFERENCE_FAILED,
     CONFERENCE_JOINED,
     CONFERENCE_LEFT,
@@ -14,10 +12,8 @@ import {
     CONFERENCE_TIMESTAMP_CHANGED,
     CONFERENCE_WILL_JOIN,
     CONFERENCE_WILL_LEAVE,
-    LOCK_STATE_CHANGED,
     P2P_STATUS_CHANGED,
     SET_FOLLOW_ME,
-    SET_PASSWORD,
     SET_PENDING_SUBJECT_CHANGE,
     SET_ROOM,
     SET_START_MUTED_POLICY
@@ -29,7 +25,6 @@ const DEFAULT_STATE = {
     e2eeSupported: undefined,
     joining: undefined,
     leaving: undefined,
-    locked: undefined,
     membersOnly: undefined,
     password: undefined,
     passwordRequired: undefined
@@ -43,8 +38,6 @@ ReducerRegistry.register(
     'features/base/conference',
     (state = DEFAULT_STATE, action) => {
         switch (action.type) {
-        case AUTH_STATUS_CHANGED:
-            return _authStatusChanged(state, action);
 
         case CONFERENCE_FAILED:
             return _conferenceFailed(state, action);
@@ -68,9 +61,6 @@ ReducerRegistry.register(
         case CONNECTION_WILL_CONNECT:
             return set(state, 'authRequired', undefined);
 
-        case LOCK_STATE_CHANGED:
-            return _lockStateChanged(state, action);
-
         case P2P_STATUS_CHANGED:
             return _p2pStatusChanged(state, action);
 
@@ -79,9 +69,6 @@ ReducerRegistry.register(
 
         case SET_LOCATION_URL:
             return set(state, 'room', undefined);
-
-        case SET_PASSWORD:
-            return _setPassword(state, action);
 
         case SET_PENDING_SUBJECT_CHANGE:
             return set(state, 'pendingSubjectChange', action.subject);
@@ -99,23 +86,6 @@ ReducerRegistry.register(
 
         return state;
     });
-
-/**
- * Reduces a specific Redux action AUTH_STATUS_CHANGED of the feature
- * base/conference.
- *
- * @param {Object} state - The Redux state of the feature base/conference.
- * @param {Action} action - The Redux action AUTH_STATUS_CHANGED to reduce.
- * @private
- * @returns {Object} The new state of the feature base/conference after the
- * reduction of the specified action.
- */
-function _authStatusChanged(state, { authEnabled, authLogin }) {
-    return assign(state, {
-        authEnabled,
-        authLogin
-    });
-}
 
 /**
  * Reduces a specific Redux action CONFERENCE_FAILED of the feature
@@ -163,14 +133,6 @@ function _conferenceFailed(state, { conference, error }) {
         joining: undefined,
         leaving: undefined,
 
-        /**
-         * The indicator of how the conference/room is locked. If falsy, the
-         * conference/room is unlocked; otherwise, it's either
-         * {@code LOCKED_LOCALLY} or {@code LOCKED_REMOTELY}.
-         *
-         * @type {string}
-         */
-        locked: passwordRequired ? LOCKED_REMOTELY : undefined,
         membersOnly,
         password: undefined,
 
@@ -194,12 +156,6 @@ function _conferenceFailed(state, { conference, error }) {
  * reduction of the specified action.
  */
 function _conferenceJoined(state, { conference }) {
-    // FIXME The indicator which determines whether a JitsiConference is locked
-    // i.e. password-protected is private to lib-jitsi-meet. However, the
-    // library does not fire LOCK_STATE_CHANGED upon joining a JitsiConference
-    // with a password.
-    // FIXME Technically JitsiConference.room is a private field.
-    const locked = conference.room && conference.room.locked ? LOCKED_REMOTELY : undefined;
 
     return assign(state, {
         authRequired: undefined,
@@ -217,13 +173,6 @@ function _conferenceJoined(state, { conference }) {
         joining: undefined,
         membersOnly: undefined,
         leaving: undefined,
-
-        /**
-         * The indicator which determines whether the conference is locked.
-         *
-         * @type {boolean}
-         */
-        locked,
         passwordRequired: undefined
     });
 }
@@ -257,9 +206,6 @@ function _conferenceLeftOrWillLeave(state, { conference, type }) {
             switch (p) {
             case 'conference':
             case 'passwordRequired':
-                // XXX Clear/unset locked & password for a conference which has
-                // been LOCKED_LOCALLY or LOCKED_REMOTELY.
-                delete nextState.locked;
                 delete nextState.password;
                 break;
             }
@@ -300,26 +246,6 @@ function _conferenceWillJoin(state, { conference }) {
     });
 }
 
-/**
- * Reduces a specific Redux action LOCK_STATE_CHANGED of the feature
- * base/conference.
- *
- * @param {Object} state - The Redux state of the feature base/conference.
- * @param {Action} action - The Redux action LOCK_STATE_CHANGED to reduce.
- * @private
- * @returns {Object} The new state of the feature base/conference after the
- * reduction of the specified action.
- */
-function _lockStateChanged(state, { conference, locked }) {
-    if (state.conference !== conference) {
-        return state;
-    }
-
-    return assign(state, {
-        locked: locked ? state.locked || LOCKED_REMOTELY : undefined,
-        password: locked ? state.password : undefined
-    });
-}
 
 /**
  * Reduces a specific Redux action P2P_STATUS_CHANGED of the feature
@@ -336,50 +262,18 @@ function _p2pStatusChanged(state, action) {
 }
 
 /**
- * Reduces a specific Redux action SET_PASSWORD of the feature base/conference.
+ * Reduces a specific Redux action SET_DESKTOP_SHARING_ENABLED of the feature
+ * base/conference.
  *
  * @param {Object} state - The Redux state of the feature base/conference.
- * @param {Action} action - The Redux action SET_PASSWORD to reduce.
+ * @param {Action} action - The Redux action SET_DESKTOP_SHARING_ENABLED to
+ * reduce.
  * @private
  * @returns {Object} The new state of the feature base/conference after the
  * reduction of the specified action.
  */
-function _setPassword(state, { conference, method, password }) {
-    switch (method) {
-    case conference.join:
-        return assign(state, {
-            // 1. The JitsiConference which transitions away from
-            // passwordRequired MUST remain in the redux state
-            // features/base/conference until it transitions into
-            // conference; otherwise, there is a span of time during which
-            // the redux state does not even know that there is a
-            // JitsiConference whatsoever.
-            //
-            // 2. The redux action setPassword will attempt to join the
-            // JitsiConference so joining is an appropriate transitional
-            // redux state.
-            //
-            // 3. The redux action setPassword will perform the same check
-            // before it proceeds with the re-join.
-            joining: state.conference ? state.joining : conference,
-            locked: LOCKED_REMOTELY,
-
-            /**
-             * The password with which the conference is to be joined.
-             *
-             * @type {string}
-             */
-            password
-        });
-
-    case conference.lock:
-        return assign(state, {
-            locked: password ? LOCKED_LOCALLY : undefined,
-            password
-        });
-    }
-
-    return state;
+function _setDesktopSharingEnabled(state, action) {
+    return set(state, 'desktopSharingEnabled', action.desktopSharingEnabled);
 }
 
 /**

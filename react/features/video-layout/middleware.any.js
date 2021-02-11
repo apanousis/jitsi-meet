@@ -3,7 +3,6 @@
 import { getCurrentConference } from '../base/conference';
 import { PIN_PARTICIPANT, pinParticipant, getPinnedParticipant } from '../base/participants';
 import { MiddlewareRegistry, StateListenerRegistry } from '../base/redux';
-import { SET_DOCUMENT_EDITING_STATUS } from '../etherpad';
 
 import { SET_TILE_VIEW } from './actionTypes';
 import { setTileView } from './actions';
@@ -35,13 +34,6 @@ MiddlewareRegistry.register(store => next => action => {
         }
         break;
     }
-    case SET_DOCUMENT_EDITING_STATUS:
-        if (action.editing) {
-            _storeTileViewStateAndClear(store);
-        } else {
-            _restoreTileViewState(store);
-        }
-        break;
 
     // Things to update when tile view state changes
     case SET_TILE_VIEW:

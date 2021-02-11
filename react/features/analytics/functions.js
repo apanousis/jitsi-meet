@@ -2,13 +2,8 @@
 
 import { API_ID } from '../../../modules/API/constants';
 import { getName as getAppName } from '../app/functions';
-import {
-    checkChromeExtensionsInstalled,
-    isMobileBrowser
-} from '../base/environment/utils';
 import JitsiMeetJS, {
     analytics,
-    browser,
     isAnalyticsEnabled
 } from '../base/lib-jitsi-meet';
 import { getJitsiMeetGlobalNS, loadScript, parseURIString } from '../base/util';
@@ -85,7 +80,6 @@ export async function createHandlers({ getState }: { getState: Function }) {
         matomoSiteID,
         whiteListedEvents
     } = analyticsConfig;
-    const { group, user } = state['features/base/jwt'];
     const handlerConstructorOptions = {
         amplitudeAPPKey,
         blackListedEvents,
@@ -93,11 +87,9 @@ export async function createHandlers({ getState }: { getState: Function }) {
         googleAnalyticsTrackingId,
         matomoEndpoint,
         matomoSiteID,
-        group,
         host,
         product: deploymentInfo && deploymentInfo.product,
         subproduct: deploymentInfo && deploymentInfo.environment,
-        user: user && user.id,
         version: JitsiMeetJS.version,
         whiteListedEvents
     };
@@ -164,18 +156,10 @@ export function initAnalytics({ getState }: { getState: Function }, handlers: Ar
     const {
         deploymentInfo
     } = config;
-    const { group, server } = state['features/base/jwt'];
     const roomName = state['features/base/conference'].room;
     const { locationURL = {} } = state['features/base/connection'];
     const { tenant } = parseURIString(locationURL.href) || {};
     const permanentProperties = {};
-
-    if (server) {
-        permanentProperties.server = server;
-    }
-    if (group) {
-        permanentProperties.group = group;
-    }
 
     // Report the application name
     permanentProperties.appName = getAppName();
@@ -207,18 +191,6 @@ export function initAnalytics({ getState }: { getState: Function }, handlers: Ar
 
     // Set the handlers last, since this triggers emptying of the cache
     analytics.setAnalyticsHandlers(handlers);
-
-    if (!isMobileBrowser() && browser.isChrome()) {
-        const bannerCfg = state['features/base/config'].chromeExtensionBanner;
-
-        checkChromeExtensionsInstalled(bannerCfg).then(extensionsInstalled => {
-            if (extensionsInstalled?.length) {
-                analytics.addPermanentProperties({
-                    hasChromeExtension: extensionsInstalled.some(ext => ext)
-                });
-            }
-        });
-    }
 }
 
 /**

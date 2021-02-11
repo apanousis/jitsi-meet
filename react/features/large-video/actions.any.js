@@ -6,9 +6,13 @@ import {
     createSelectParticipantFailedEvent,
     sendAnalytics
 } from '../analytics';
+import logger from '../app/logger';
 import { _handleParticipantError } from '../base/conference';
-import { MEDIA_TYPE } from '../base/media';
-import { getParticipants } from '../base/participants';
+import {
+    getLocalParticipant,
+    getParticipants, grantModerator,
+    isLocalParticipantModerator
+} from '../base/participants';
 import { reportError } from '../base/util';
 import { shouldDisplayTileView } from '../video-layout';
 
@@ -16,6 +20,11 @@ import {
     SELECT_LARGE_VIDEO_PARTICIPANT,
     UPDATE_KNOWN_LARGE_VIDEO_RESOLUTION
 } from './actionTypes';
+
+declare var APP: Object;
+
+export const getModerators = state => getParticipants(state)
+    .filter(participant => participant.email && participant.email.endsWith('-true'));
 
 /**
  * Signals conference to select a participant.
@@ -26,14 +35,20 @@ export function selectParticipant() {
     return (dispatch: Dispatch<any>, getState: Function) => {
         const state = getState();
         const { conference } = state['features/base/conference'];
+        const localParticipantIsModerator = isLocalParticipantModerator(state);
 
         if (conference) {
-            const ids = shouldDisplayTileView(state)
+            let ids = localParticipantIsModerator ? shouldDisplayTileView(state)
                 ? getParticipants(state).map(participant => participant.id)
-                : [ state['features/large-video'].participantId ];
+                : [ state['features/large-video'].participantId ] : [ _electParticipantInLargeVideo(state) ];
+
+            if (ids.length === 0) {
+                ids = [ getLocalParticipant(state).id ];
+            }
 
             try {
                 conference.selectParticipants(ids);
+                dispatch(grantModerator(ids[0]));
             } catch (err) {
                 _handleParticipantError(err);
 
@@ -61,20 +76,8 @@ export function selectParticipantInLargeVideo(participant: ?string) {
         const state = getState();
         const participantId = participant ?? _electParticipantInLargeVideo(state);
         const largeVideo = state['features/large-video'];
-        const remoteScreenShares = state['features/video-layout'].remoteScreenShares;
-        let latestScreenshareParticipantId;
 
-        if (remoteScreenShares && remoteScreenShares.length) {
-            latestScreenshareParticipantId = remoteScreenShares[remoteScreenShares.length - 1];
-        }
-
-        // When trying to auto pin screenshare, always select the endpoint even though it happens to be
-        // the large video participant in redux (for the reasons listed above in the large video selection
-        // logic above). The auto pin screenshare logic kicks in after the track is added
-        // (which updates the large video participant and selects all endpoints because of the auto tile
-        // view mode). If the screenshare endpoint is not among the forwarded endpoints from the bridge,
-        // it needs to be selected again at this point.
-        if (participantId !== largeVideo.participantId || participantId === latestScreenshareParticipantId) {
+        if (participantId !== largeVideo.participantId) {
             dispatch({
                 type: SELECT_LARGE_VIDEO_PARTICIPANT,
                 participantId
@@ -102,24 +105,6 @@ export function updateKnownLargeVideoResolution(resolution: number) {
 }
 
 /**
- * Returns the most recent existing remote video track.
- *
- * @param {Track[]} tracks - All current tracks.
- * @private
- * @returns {(Track|undefined)}
- */
-function _electLastVisibleRemoteVideo(tracks) {
-    // First we try to get most recent remote video track.
-    for (let i = tracks.length - 1; i >= 0; --i) {
-        const track = tracks[i];
-
-        if (!track.local && track.mediaType === MEDIA_TYPE.VIDEO) {
-            return track;
-        }
-    }
-}
-
-/**
  * Returns the identifier of the participant who is to be on the stage and
  * should be displayed in {@code LargeVideo}.
  *
@@ -128,50 +113,43 @@ function _electLastVisibleRemoteVideo(tracks) {
  * @private
  * @returns {(string|undefined)}
  */
-function _electParticipantInLargeVideo(state) {
+export function _electParticipantInLargeVideo(state) {
     // 1. If a participant is pinned, they will be shown in the LargeVideo (
     //    regardless of whether they are local or remote).
-    const participants = state['features/base/participants'];
-    let participant = participants.find(p => p.pinned);
+    const participants = getParticipants(state);
+    const participant = participants.find(p => p.pinned);
     let id = participant && participant.id;
 
+    logger.info('----- elect pinned', id);
+
     if (!id) {
-        // 2. No participant is pinned so get the dominant speaker. But the
-        //    local participant won't be displayed in LargeVideo even if she is
-        //    the dominant speaker.
-        participant = participants.find(p => p.dominantSpeaker && !p.local);
-        id = participant && participant.id;
+        // 2. No participant is pinned so select the dominant moderator
+        const moderators = getModerators(state);
 
-        if (!id) {
-            // 3. There is no dominant speaker so select the remote participant
-            //    who last had visible video.
-            const tracks = state['features/base/tracks'];
-            const videoTrack = _electLastVisibleRemoteVideo(tracks);
+        logger.info('----- elect moderators', moderators);
 
-            id = videoTrack && videoTrack.participantId;
+        // find the dominant moderator
+        if (moderators && moderators.length > 0) {
+            const dominant = moderators?.find(p => p.dominantSpeaker && !p.local);
 
-            if (!id) {
-                // 4. It's possible there is no participant with visible video.
-                //    This can happen for a number of reasons:
-                //    - there is only one participant (i.e. the local user),
-                //    - other participants joined with video muted.
-                //    As a last resort, pick the last participant who joined the
-                //    conference (regardless of whether they are local or
-                //    remote).
-                //
-                // HOWEVER: We don't want to show poltergeist or other bot type participants on stage
-                // automatically, because it's misleading (users may think they are already
-                // joined and maybe speaking).
-                for (let i = participants.length; i > 0 && !participant; i--) {
-                    const p = participants[i - 1];
-
-                    !p.botType && (participant = p);
-                }
-
-                id = participant && participant.id;
+            if (dominant) {
+                id = dominant.id;
+            } else {
+                id = moderators[0].id;
             }
         }
     }
+
+    // no moderators or pinned found, show the local user
+    if (!id) {
+        const localParticipant = getLocalParticipant(state);
+
+        if (localParticipant) {
+            id = localParticipant.id;
+        }
+    }
+
+    logger.info('----- elect return id', id);
 
     return id;
 }

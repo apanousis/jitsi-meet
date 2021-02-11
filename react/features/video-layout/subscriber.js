@@ -4,7 +4,6 @@ import debounce from 'lodash/debounce';
 
 import { pinParticipant, getPinnedParticipant } from '../base/participants';
 import { StateListenerRegistry, equals } from '../base/redux';
-import { isFollowMeActive } from '../follow-me';
 import { selectParticipant } from '../large-video/actions';
 
 import { setRemoteParticipantsWithScreenShare } from './actions';
@@ -33,7 +32,7 @@ StateListenerRegistry.register(
 StateListenerRegistry.register(
     /* selector */ state => state['features/base/tracks'],
     /* listener */ debounce((tracks, store) => {
-        if (!_getAutoPinSetting() || isFollowMeActive(store)) {
+        if (!_getAutoPinSetting()) {
             return;
         }
 

@@ -110,16 +110,6 @@ ColorSchemeRegistry.register('Toolbox', {
         }
     },
 
-    /**
-     * Overrides to the standard styles that we apply to the chat button, as
-     * that behaves slightly differently to other buttons.
-     */
-    chatButtonOverride: {
-        toggled: {
-            backgroundColor: ColorPalette.blue
-        }
-    },
-
     hangupButtonStyles: {
         iconStyle: whiteToolbarButtonIcon,
         style: {

@@ -1,8 +1,7 @@
 // @flow
 
 import { getFeatureFlag, TILE_VIEW_ENABLED } from '../base/flags';
-import { getPinnedParticipant, getParticipantCount } from '../base/participants';
-import { CHAT_SIZE } from '../chat/constants';
+import { getPinnedParticipant, getParticipantCount, participantCanBeSeen } from '../base/participants';
 import {
     ASPECT_RATIO_BREAKPOINT,
     DEFAULT_MAX_COLUMNS,
@@ -10,7 +9,6 @@ import {
     SINGLE_COLUMN_BREAKPOINT,
     TWO_COLUMN_BREAKPOINT
 } from '../filmstrip/constants';
-import { isYoutubeVideoPlaying } from '../youtube-player/functions';
 
 import { LAYOUTS } from './constants';
 
@@ -46,13 +44,8 @@ export function getMaxColumnCount(state: Object) {
 
     if (!disableResponsiveTiles) {
         const { clientWidth } = state['features/base/responsive-ui'];
-        let availableWidth = clientWidth;
+        const availableWidth = clientWidth;
         const participantCount = getParticipantCount(state);
-        const { isOpen } = state['features/chat'];
-
-        if (isOpen) {
-            availableWidth -= CHAT_SIZE;
-        }
 
         // If there are just two participants in a conference, enforce single-column view for mobile size.
         if (participantCount === 2 && availableWidth < ASPECT_RATIO_BREAKPOINT) {
@@ -87,10 +80,8 @@ export function getMaxColumnCount(state: Object) {
 export function getTileViewGridDimensions(state: Object) {
     const maxColumns = getMaxColumnCount(state);
 
-    // When in tile view mode, we must discount ourselves (the local participant) because our
-    // tile is not visible.
-    const { iAmRecorder } = state['features/base/config'];
-    const numberOfParticipants = state['features/base/participants'].length - (iAmRecorder ? 1 : 0);
+    const numberOfParticipants = state['features/base/participants']
+        .filter(p => participantCanBeSeen(state, p)).length + 1;
 
     const columnsToMaintainASquare = Math.ceil(Math.sqrt(numberOfParticipants));
     const columns = Math.min(columnsToMaintainASquare, maxColumns);
@@ -114,13 +105,6 @@ export function getTileViewGridDimensions(state: Object) {
 export function shouldDisplayTileView(state: Object = {}) {
     const participantCount = getParticipantCount(state);
 
-    // In case of a lonely meeting, we don't allow tile view.
-    // But it's a special case too, as we don't even render the button,
-    // see TileViewButton component.
-    if (participantCount < 2) {
-        return false;
-    }
-
     const tileViewEnabledFeatureFlag = getFeatureFlag(state, TILE_VIEW_ENABLED, true);
     const { disableTileView } = state['features/base/config'];
 
@@ -136,8 +120,6 @@ export function shouldDisplayTileView(state: Object = {}) {
         return tileViewEnabled;
     }
 
-    const { iAmRecorder } = state['features/base/config'];
-
     // None tile view mode is easier to calculate (no need for many negations), so we do
     // that and negate it only once.
     const shouldDisplayNormalMode = Boolean(
@@ -152,12 +134,6 @@ export function shouldDisplayTileView(state: Object = {}) {
 
         // It's a 1-on-1 meeting
         || participantCount < 3
-
-        // There is a shared YouTube video in the meeting
-        || isYoutubeVideoPlaying(state)
-
-        // We want jibri to use stage view by default
-        || iAmRecorder
     );
 
     return !shouldDisplayNormalMode;

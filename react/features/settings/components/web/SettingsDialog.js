@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 import { getAvailableDevices } from '../../../base/devices';
 import { DialogWithTabs, hideDialog } from '../../../base/dialog';
 import { connect } from '../../../base/redux';
-import { isCalendarEnabled } from '../../../calendar-sync';
 import {
     DeviceSelection,
     getDeviceSelectionDialogProps,
@@ -15,7 +14,6 @@ import { submitMoreTab, submitProfileTab } from '../../actions';
 import { SETTINGS_TABS } from '../../constants';
 import { getMoreTabProps, getProfileTabProps } from '../../functions';
 
-import CalendarTab from './CalendarTab';
 import MoreTab from './MoreTab';
 import ProfileTab from './ProfileTab';
 
@@ -132,9 +130,8 @@ function _mapStateToProps(state) {
     const moreTabProps = getMoreTabProps(state);
     const { showModeratorSettings, showLanguageSettings, showPrejoinSettings } = moreTabProps;
     const showProfileSettings
-        = configuredTabs.includes('profile') && !state['features/base/config'].disableProfile;
-    const showCalendarSettings
-        = configuredTabs.includes('calendar') && isCalendarEnabled(state);
+        = configuredTabs.includes('profile');
+
     const tabs = [];
 
     if (showDeviceSettings) {
@@ -171,15 +168,6 @@ function _mapStateToProps(state) {
             props: getProfileTabProps(state),
             styles: 'settings-pane profile-pane',
             submit: submitProfileTab
-        });
-    }
-
-    if (showCalendarSettings) {
-        tabs.push({
-            name: SETTINGS_TABS.CALENDAR,
-            component: CalendarTab,
-            label: 'settings.calendar.title',
-            styles: 'settings-pane calendar-pane'
         });
     }
 

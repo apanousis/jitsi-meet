@@ -4,7 +4,6 @@
     background-size: contain;
     border: $thumbnailVideoBorder solid transparent;
     border-radius: $borderRadius;
-    margin: 0 $thumbnailVideoMargin;
 
     &.videoContainerFocused, &:hover {
         cursor: hand;

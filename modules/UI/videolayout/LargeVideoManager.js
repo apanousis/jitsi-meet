@@ -15,7 +15,6 @@ import {
 import { MEDIA_TYPE, VIDEO_TYPE } from '../../../react/features/base/media';
 import { getParticipantById } from '../../../react/features/base/participants';
 import { getTrackByMediaTypeAndParticipant } from '../../../react/features/base/tracks';
-import { CHAT_SIZE } from '../../../react/features/chat';
 import {
     updateKnownLargeVideoResolution
 } from '../../../react/features/large-video/actions';
@@ -369,16 +368,7 @@ export default class LargeVideoManager {
             this.preferredHeight = height;
         }
 
-        let widthToUse = this.preferredWidth || window.innerWidth;
-        const { isOpen } = APP.store.getState()['features/chat'];
-
-        if (isOpen && window.innerWidth > 580) {
-            /**
-             * If chat state is open, we re-compute the container width
-             * by subtracting the default width of the chat.
-             */
-            widthToUse -= CHAT_SIZE;
-        }
+        const widthToUse = this.preferredWidth || window.innerWidth;
 
         this.width = widthToUse;
         this.height = this.preferredHeight || window.innerHeight;

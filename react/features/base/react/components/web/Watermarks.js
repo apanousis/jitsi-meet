@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react';
 
-import { isVpaasMeeting } from '../../../../billing-counter/functions';
 import { translate } from '../../../i18n';
 import { connect } from '../../../redux';
 
@@ -233,7 +232,7 @@ function _mapStateToProps(state, ownProps) {
         JITSI_WATERMARK_LINK,
         SHOW_JITSI_WATERMARK
     } = interfaceConfig;
-    let _showJitsiWatermark = (
+    const _showJitsiWatermark = (
         customizationReady && !customizationFailed
         && SHOW_JITSI_WATERMARK)
     || !isValidRoom;
@@ -241,10 +240,7 @@ function _mapStateToProps(state, ownProps) {
     let _logoLink = logoClickUrl;
 
     if (useDynamicBrandingData) {
-        if (isVpaasMeeting(state)) {
-            // don't show logo if request fails or no logo set for vpaas meetings
-            _showJitsiWatermark = !customizationFailed && Boolean(logoImageUrl);
-        } else if (defaultBranding) {
+        if (defaultBranding) {
             _logoUrl = DEFAULT_LOGO_URL;
             _logoLink = JITSI_WATERMARK_LINK;
         }

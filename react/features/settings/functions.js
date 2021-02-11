@@ -9,7 +9,6 @@ import {
 } from '../base/participants';
 import { toState } from '../base/redux';
 import { parseStandardURIString } from '../base/util';
-import { isFollowMeActive } from '../follow-me';
 
 declare var interfaceConfig: Object;
 
@@ -98,11 +97,9 @@ export function getMoreTabProps(stateful: Object | Function) {
     const language = i18next.language || DEFAULT_LANGUAGE;
     const {
         conference,
-        followMeEnabled,
         startAudioMutedPolicy,
         startVideoMutedPolicy
     } = state['features/base/conference'];
-    const followMeActive = isFollowMeActive(state);
     const configuredTabs = interfaceConfig.SETTINGS_SECTIONS || [];
 
     // The settings sections to display.
@@ -113,8 +110,6 @@ export function getMoreTabProps(stateful: Object | Function) {
 
     return {
         currentLanguage: language,
-        followMeActive: Boolean(conference && followMeActive),
-        followMeEnabled: Boolean(conference && followMeEnabled),
         languages: LANGUAGES,
         showLanguageSettings: configuredTabs.includes('language'),
         showModeratorSettings,

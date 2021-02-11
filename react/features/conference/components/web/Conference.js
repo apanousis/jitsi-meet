@@ -8,12 +8,8 @@ import { getConferenceNameForTitle } from '../../../base/conference';
 import { connect, disconnect } from '../../../base/connection';
 import { translate } from '../../../base/i18n';
 import { connect as reactReduxConnect } from '../../../base/redux';
-import { Chat } from '../../../chat';
 import { Filmstrip } from '../../../filmstrip';
-import { CalleeInfoContainer } from '../../../invite';
 import { LargeVideo } from '../../../large-video';
-import { KnockingParticipantList, LobbyScreen } from '../../../lobby';
-import { Prejoin, isPrejoinPageVisible } from '../../../prejoin';
 import { fullScreenChanged, showToolbox } from '../../../toolbox/actions.web';
 import { Toolbox } from '../../../toolbox/components/web';
 import { LAYOUTS, getCurrentLayout } from '../../../video-layout';
@@ -67,11 +63,6 @@ type Props = AbstractProps & {
     _iAmRecorder: boolean,
 
     /**
-     * Returns true if the 'lobby screen' is visible.
-     */
-    _isLobbyScreenVisible: boolean,
-
-    /**
      * The CSS class to apply to the root of {@link Conference} to modify the
      * application layout.
      */
@@ -81,11 +72,6 @@ type Props = AbstractProps & {
      * Name for this conference room.
      */
     _roomName: string,
-
-    /**
-     * If prejoin page is visible or not.
-     */
-    _showPrejoin: boolean,
 
     dispatch: Function,
     t: Function
@@ -175,12 +161,8 @@ class Conference extends AbstractConference<Props, *> {
      */
     render() {
         const {
-            _iAmRecorder,
-            _isLobbyScreenVisible,
-            _layoutClassName,
-            _showPrejoin
+            _layoutClassName
         } = this.props;
-        const hideLabels = _iAmRecorder;
 
         return (
             <div
@@ -191,19 +173,14 @@ class Conference extends AbstractConference<Props, *> {
                 <Notice />
                 <div id = 'videospace'>
                     <LargeVideo />
-                    <KnockingParticipantList />
                     <Filmstrip />
-                    { hideLabels || <Labels /> }
+                    <Labels />
                 </div>
 
-                { _showPrejoin || _isLobbyScreenVisible || <Toolbox /> }
-                <Chat />
+                <Toolbox />
 
                 { this.renderNotificationsContainer() }
 
-                <CalleeInfoContainer />
-
-                { _showPrejoin && <Prejoin />}
             </div>
         );
     }
@@ -264,11 +241,8 @@ class Conference extends AbstractConference<Props, *> {
 function _mapStateToProps(state) {
     return {
         ...abstractMapStateToProps(state),
-        _iAmRecorder: state['features/base/config'].iAmRecorder,
-        _isLobbyScreenVisible: state['features/base/dialog']?.component === LobbyScreen,
         _layoutClassName: LAYOUT_CLASSNAMES[getCurrentLayout(state)],
-        _roomName: getConferenceNameForTitle(state),
-        _showPrejoin: isPrejoinPageVisible(state)
+        _roomName: getConferenceNameForTitle(state)
     };
 }
 

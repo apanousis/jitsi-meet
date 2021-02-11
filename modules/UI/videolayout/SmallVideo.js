@@ -1,45 +1,13 @@
-/* global $, APP, interfaceConfig */
-
-/* eslint-disable no-unused-vars */
-import { AtlasKitThemeProvider } from '@atlaskit/theme';
 import Logger from 'jitsi-meet-logger';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { I18nextProvider } from 'react-i18next';
-import { Provider } from 'react-redux';
 
 import { createScreenSharingIssueEvent, sendAnalytics } from '../../../react/features/analytics';
-import { AudioLevelIndicator } from '../../../react/features/audio-level-indicator';
-import { Avatar as AvatarDisplay } from '../../../react/features/base/avatar';
-import { i18next } from '../../../react/features/base/i18n';
 import { MEDIA_TYPE } from '../../../react/features/base/media';
-import {
-    getLocalParticipant,
-    getParticipantById,
-    getParticipantCount,
-    getPinnedParticipant,
-    pinParticipant
-} from '../../../react/features/base/participants';
-import {
-    getLocalVideoTrack,
-    getTrackByMediaTypeAndParticipant,
-    isLocalTrackMuted,
-    isRemoteTrackMuted
-} from '../../../react/features/base/tracks';
-import { ConnectionIndicator } from '../../../react/features/connection-indicator';
-import { DisplayName } from '../../../react/features/display-name';
-import {
-    DominantSpeakerIndicator,
-    RaisedHandIndicator,
-    StatusIndicators,
-    isVideoPlayable
-} from '../../../react/features/filmstrip';
-import {
-    LAYOUTS,
-    getCurrentLayout,
-    setTileView,
-    shouldDisplayTileView
-} from '../../../react/features/video-layout';
+import { getParticipantById, getPinnedParticipant, pinParticipant } from '../../../react/features/base/participants';
+import { getLocalVideoTrack, getTrackByMediaTypeAndParticipant } from '../../../react/features/base/tracks';
+import { isVideoPlayable } from '../../../react/features/filmstrip';
+import { getCurrentLayout, LAYOUTS, shouldDisplayTileView } from '../../../react/features/video-layout';
 /* eslint-enable no-unused-vars */
 
 const logger = Logger.getLogger(__filename);
@@ -214,17 +182,17 @@ export default class SmallVideo {
      */
     selectDisplayMode(input) {
         if (!input.tileViewActive && input.isScreenSharing) {
-            return input.isHovered ? DISPLAY_AVATAR_WITH_NAME : DISPLAY_AVATAR;
+            return DISPLAY_AVATAR_WITH_NAME;
         } else if (input.isCurrentlyOnLargeVideo && !input.tileViewActive) {
             // Display name is always and only displayed when user is on the stage
             return input.isVideoPlayable && !input.isAudioOnly ? DISPLAY_BLACKNESS_WITH_NAME : DISPLAY_AVATAR_WITH_NAME;
         } else if (input.isVideoPlayable && input.hasVideo && !input.isAudioOnly) {
             // check hovering and change state to video with name
-            return input.isHovered ? DISPLAY_VIDEO_WITH_NAME : DISPLAY_VIDEO;
+            return DISPLAY_VIDEO_WITH_NAME;
         }
 
         // check hovering and change state to avatar with name
-        return input.isHovered ? DISPLAY_AVATAR_WITH_NAME : DISPLAY_AVATAR;
+        return DISPLAY_AVATAR_WITH_NAME;
     }
 
     /**
@@ -298,8 +266,8 @@ export default class SmallVideo {
             this.$container.addClass('display-name-on-black');
             break;
         case DISPLAY_VIDEO:
-            displayModeString = 'video';
-            this.$container.addClass('display-video');
+            displayModeString = 'video-with-name';
+            this.$container.addClass('display-name-on-video');
             break;
         case DISPLAY_VIDEO_WITH_NAME:
             displayModeString = 'video-with-name';

@@ -1,7 +1,6 @@
 // @flow
 
 import { toState } from '../base/redux';
-import { CHAT_SIZE } from '../chat/constants';
 
 import { SET_HORIZONTAL_VIEW_DIMENSIONS, SET_TILE_VIEW_DIMENSIONS } from './actionTypes';
 import { calculateThumbnailSizeForHorizontalView, calculateThumbnailSizeForTileView } from './functions';
@@ -27,13 +26,8 @@ export function setTileViewDimensions(dimensions: Object, windowSize: Object, st
     const state = toState(stateful);
     const { clientWidth, clientHeight } = windowSize;
     const heightToUse = clientHeight;
-    let widthToUse = clientWidth;
-    const { isOpen } = state['features/chat'];
+    const widthToUse = clientWidth;
     const { disableResponsiveTiles } = state['features/base/config'];
-
-    if (isOpen) {
-        widthToUse -= CHAT_SIZE;
-    }
 
     const thumbnailSize = calculateThumbnailSizeForTileView({
         ...dimensions,

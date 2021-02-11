@@ -72,7 +72,7 @@ export async function createLocalPresenterTrack(options, desktopHeight) {
  */
 export function createLocalTracksF(options = {}, firePermissionPromptIsShownEvent, store) {
     let { cameraDeviceId, micDeviceId } = options;
-    const { desktopSharingSourceDevice, desktopSharingSources, timeout } = options;
+    const { timeout } = options;
 
     if (typeof APP !== 'undefined') {
         // TODO The app's settings should go in the redux store and then the
@@ -91,40 +91,29 @@ export function createLocalTracksF(options = {}, firePermissionPromptIsShownEven
 
     const state = store.getState();
     const {
-        desktopSharingFrameRate,
         firefox_fake_device, // eslint-disable-line camelcase
         resolution
     } = state['features/base/config'];
     const constraints = options.constraints ?? state['features/base/config'].constraints;
 
-    return (
-        loadEffects(store).then(effectsArray => {
-            // Filter any undefined values returned by Promise.resolve().
-            const effects = effectsArray.filter(effect => Boolean(effect));
+    return JitsiMeetJS.createLocalTracks(
+        {
+            cameraDeviceId,
+            constraints,
 
-            return JitsiMeetJS.createLocalTracks(
-                {
-                    cameraDeviceId,
-                    constraints,
-                    desktopSharingFrameRate,
-                    desktopSharingSourceDevice,
-                    desktopSharingSources,
+            // Copy array to avoid mutations inside library.
+            devices: options.devices.slice(0),
+            firefox_fake_device, // eslint-disable-line camelcase
+            micDeviceId,
+            resolution,
+            timeout
+        },
+        firePermissionPromptIsShownEvent)
+        .catch(err => {
+            logger.error('Failed to create local tracks', options.devices, err);
 
-                    // Copy array to avoid mutations inside library.
-                    devices: options.devices.slice(0),
-                    effects,
-                    firefox_fake_device, // eslint-disable-line camelcase
-                    micDeviceId,
-                    resolution,
-                    timeout
-                },
-                firePermissionPromptIsShownEvent)
-            .catch(err => {
-                logger.error('Failed to create local tracks', options.devices, err);
-
-                return Promise.reject(err);
-            });
-        }));
+            return Promise.reject(err);
+        });
 }
 
 /**

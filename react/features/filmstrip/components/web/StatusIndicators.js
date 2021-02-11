@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 
 import { MEDIA_TYPE } from '../../../base/media';
-import { getLocalParticipant, getParticipantById, PARTICIPANT_ROLE } from '../../../base/participants';
+import { getLocalParticipant, getParticipantById, isParticipantModerator } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import { getTrackByMediaTypeAndParticipant, isLocalTrackMuted, isRemoteTrackMuted } from '../../../base/tracks';
 import { getCurrentLayout, LAYOUTS } from '../../../video-layout';
@@ -133,7 +133,7 @@ function _mapStateToProps(state, ownProps) {
         _currentLayout: getCurrentLayout(state),
         _showAudioMutedIndicator: isAudioMuted,
         _showModeratorIndicator:
-            !interfaceConfig.DISABLE_FOCUS_INDICATOR && participant && participant.role === PARTICIPANT_ROLE.MODERATOR,
+            !interfaceConfig.DISABLE_FOCUS_INDICATOR && participant && isParticipantModerator(participant),
         _showScreenShareIndicator: isScreenSharing,
         _showVideoMutedIndicator: isVideoMuted
     };

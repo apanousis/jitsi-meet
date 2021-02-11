@@ -40,12 +40,6 @@ deploy-appbundle:
 		$(BUILD_DIR)/do_external_connect.min.map \
 		$(BUILD_DIR)/external_api.min.js \
 		$(BUILD_DIR)/external_api.min.map \
-		$(BUILD_DIR)/flacEncodeWorker.min.js \
-		$(BUILD_DIR)/flacEncodeWorker.min.map \
-		$(BUILD_DIR)/dial_in_info_bundle.min.js \
-		$(BUILD_DIR)/dial_in_info_bundle.min.map \
-		$(BUILD_DIR)/alwaysontop.min.js \
-		$(BUILD_DIR)/alwaysontop.min.map \
 		$(OUTPUT_DIR)/analytics-ga.js \
 		$(BUILD_DIR)/analytics-ga.min.js \
 		$(BUILD_DIR)/analytics-ga.min.map \

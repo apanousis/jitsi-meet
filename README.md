@@ -80,3 +80,15 @@ For information on reporting security vulnerabilities in Jitsi Meet, see [SECURI
 ## Acknowledgements
 
 Jitsi Meet started out as a sample conferencing application using Jitsi Videobridge. It was originally developed by ESTOS' developer Philipp Hancke who then contributed it to the community where development continues with joint forces!
+
+## Local build
+
+1. Create symbolic link 
+
+```ln -s libs lib-jitsi-meet```
+
+2. Build the code
+
+```xcodebuild -workspace ios/jitsi-meet.xcworkspace -scheme JitsiMeet -destination=‘generic/platform=iOS’ -configuration Release ENABLE_BITCODE=NO clean archive```
+
+3. Go to `jitsi-meet-ios-sdk-releases` to link the pod to the project

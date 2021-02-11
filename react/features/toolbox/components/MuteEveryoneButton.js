@@ -4,7 +4,7 @@ import { createToolbarEvent, sendAnalytics } from '../../analytics';
 import { openDialog } from '../../base/dialog';
 import { translate } from '../../base/i18n';
 import { IconMuteEveryone } from '../../base/icons';
-import { getLocalParticipant, PARTICIPANT_ROLE } from '../../base/participants';
+import { getLocalParticipant, isLocalParticipantModerator } from '../../base/participants';
 import { connect } from '../../base/redux';
 import { AbstractButton, type AbstractButtonProps } from '../../base/toolbox/components';
 import { MuteEveryoneDialog } from '../../remote-video-menu/components';
@@ -62,7 +62,7 @@ class MuteEveryoneButton extends AbstractButton<Props, *> {
  */
 function _mapStateToProps(state: Object, ownProps: Props) {
     const localParticipant = getLocalParticipant(state);
-    const isModerator = localParticipant.role === PARTICIPANT_ROLE.MODERATOR;
+    const isModerator = isLocalParticipantModerator(state);
     const { visible } = ownProps;
     const { disableRemoteMute } = state['features/base/config'];
 

@@ -3,17 +3,14 @@
 import { jitsiLocalStorage } from '@jitsi/js-utils';
 import Logger from 'jitsi-meet-logger';
 
-import AuthHandler from './modules/UI/authentication/AuthHandler';
 import {
     connectionEstablished,
     connectionFailed
 } from './react/features/base/connection/actions';
 import {
     isFatalJitsiConnectionError,
-    JitsiConnectionErrors,
     JitsiConnectionEvents
 } from './react/features/base/lib-jitsi-meet';
-import { setPrejoinDisplayNameRequired } from './react/features/prejoin/actions';
 
 const logger = Logger.getLogger(__filename);
 
@@ -82,7 +79,6 @@ function checkForAttachParametersAndConnect(id, password, connection) {
  */
 function connect(id, password, roomName) {
     const connectionConfig = Object.assign({}, config);
-    const { jwt } = APP.store.getState()['features/base/jwt'];
 
     // Use Websocket URL for the web app if configured. Note that there is no 'isWeb' check, because there's assumption
     // that this code executes only on web browsers/electron. This needs to be changed when mobile and web are unified.
@@ -98,7 +94,7 @@ function connect(id, password, roomName) {
         connectionConfig.websocketKeepAliveUrl += `?room=${roomName}`;
     }
 
-    const connection = new JitsiMeetJS.JitsiConnection(null, jwt, connectionConfig);
+    const connection = new JitsiMeetJS.JitsiConnection(null, null, connectionConfig);
 
     if (config.iAmRecorder) {
         connection.addFeature(DISCO_JIBRI_FEATURE);
@@ -114,10 +110,6 @@ function connect(id, password, roomName) {
         connection.addEventListener(
             JitsiConnectionEvents.CONNECTION_FAILED,
             connectionFailedHandler);
-        connection.addEventListener(
-            JitsiConnectionEvents.DISPLAY_NAME_REQUIRED,
-            displayNameRequiredHandler
-        );
 
         /* eslint-disable max-params */
         /**
@@ -171,14 +163,6 @@ function connect(id, password, roomName) {
             reject(err);
         }
 
-        /**
-         * Marks the display name for the prejoin screen as required.
-         * This can happen if a user tries to join a room with lobby enabled.
-         */
-        function displayNameRequiredHandler() {
-            APP.store.dispatch(setPrejoinDisplayNameRequired());
-        }
-
         checkForAttachParametersAndConnect(id, password, connection);
     });
 }
@@ -209,15 +193,5 @@ export function openConnection({ id, password, retry, roomName }) {
         password = passwordOverride; // eslint-disable-line no-param-reassign
     }
 
-    return connect(id, password, roomName).catch(err => {
-        if (retry) {
-            const { jwt } = APP.store.getState()['features/base/jwt'];
-
-            if (err === JitsiConnectionErrors.PASSWORD_REQUIRED && !jwt) {
-                return AuthHandler.requestAuth(roomName, connect);
-            }
-        }
-
-        throw err;
-    });
+    return connect(id, password, roomName);
 }

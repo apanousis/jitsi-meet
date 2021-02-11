@@ -4,6 +4,7 @@ import React from 'react';
 
 import { translate } from '../../../base/i18n';
 import { IconKick } from '../../../base/icons';
+import { getParticipantById, isParticipantModerator } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 import AbstractKickButton, {
     type Props
@@ -42,6 +43,9 @@ class KickButton extends AbstractKickButton {
     render() {
         const { participantID, t } = this.props;
 
+        if (isParticipantModerator(getParticipantById(this.state, participantID))) {
+            return;
+        }
         return (
             <RemoteVideoMenuButton
                 buttonText = { t('videothumbnail.kick') }
