@@ -104,7 +104,6 @@ class RemoteVideoMenu extends PureComponent<Props> {
                 { !_disableKick && <KickButton { ...buttonProps } /> }
                 <GrantModeratorButton { ...buttonProps } />
                 <PinButton { ...buttonProps } />
-                <PrivateMessageButton { ...buttonProps } />
                 <MuteEveryoneElseButton { ...buttonProps } />
                 <ConnectionStatusButton { ...buttonProps } />
             </BottomSheet>

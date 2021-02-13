@@ -89,6 +89,6 @@ Jitsi Meet started out as a sample conferencing application using Jitsi Videobri
 
 2. Build the code
 
-```xcodebuild -workspace ios/jitsi-meet.xcworkspace -scheme JitsiMeet -destination=‘generic/platform=iOS’ -configuration Release ENABLE_BITCODE=NO clean archive```
+```xcodebuild -workspace ios/jitsi-meet.xcworkspace -scheme JitsiMeetSDK -destination=‘generic/platform=iOS’ -configuration Release ENABLE_BITCODE=NO clean archive```
 
 3. Go to `jitsi-meet-ios-sdk-releases` to link the pod to the project
